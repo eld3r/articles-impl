@@ -1,0 +1,7 @@
+﻿services:
+  articles.api:
+    image: articles.api
+    build:
+      context: .
+      dockerfile: Articles.Api/Dockerfile
+
