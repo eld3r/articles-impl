@@ -22,7 +22,6 @@ public class IntegrationTestsBaseProfile
         var services = new ServiceCollection();
         services.AddArticlesPgServices(configuration);
         services.AddArticlesServices();
-        services.AddMapster();
         
         ServiceProvider = services.BuildServiceProvider();
         

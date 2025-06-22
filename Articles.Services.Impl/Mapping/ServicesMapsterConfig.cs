@@ -3,7 +3,7 @@ using Mapster;
 
 namespace Articles.Services.Impl.Mapping;
 
-public class MappingConfig : IRegister
+public class ServicesMapsterConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

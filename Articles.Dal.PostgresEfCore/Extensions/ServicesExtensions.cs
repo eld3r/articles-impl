@@ -20,20 +20,12 @@ public static class ServicesExtensions
                         .UseSnakeCaseNamingConvention()
                         .AddInterceptors(new CreateUpdateDateInterceptor())
 #if DEBUG
-                        .LogTo(Console.WriteLine, LogLevel.Information)
-                        .EnableSensitiveDataLogging()
+                        //.LogTo(Console.WriteLine, LogLevel.Information)
+                        //.EnableSensitiveDataLogging()
 #endif
             )
             .AddScoped<IArticlesRepository, ArticlesRepository>()
             .AddScoped<ISectionsRepository, SectionsRepository>()
             .AddScoped<ITagsRepository, TagsRepository>()
-            .ScanMapsterConfigsIntoGlobal()
         ;
-    
-    private static IServiceCollection ScanMapsterConfigsIntoGlobal(this IServiceCollection services)
-    {
-        var config = TypeAdapterConfig.GlobalSettings;
-        config.Scan(typeof(ArticleConfig).Assembly);
-        return services;
-    }
 }
