@@ -40,6 +40,7 @@ public class ArticlesService(IArticlesRepository articlesRepository, ITagsReposi
     public async Task<bool> Update(UpdateArticleRequest updateArticleRequest)
     {
         var article = updateArticleRequest.Adapt<Article>();
+        article.Id = id;
         
         await EnrichExistingTags(article);
         

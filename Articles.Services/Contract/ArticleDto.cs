@@ -8,7 +8,6 @@ public class CreateArticleRequest
 
 public class UpdateArticleRequest
 {
-    public long Id { get; set; }
     public string Title { get; set; } = null!;
     public List<string> Tags { get; set; } = [];
 }

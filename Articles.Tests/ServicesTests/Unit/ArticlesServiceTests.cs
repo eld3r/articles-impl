@@ -3,15 +3,14 @@ using Articles.Domain.Entities;
 using Articles.Services.DTO;
 using Articles.Services.Impl;
 using Articles.Tests.Extensions;
-using Articles.Tests.ServicesTests.Base;
 using DeepEqual.Syntax;
 using FakeItEasy;
 using Mapster;
 
-namespace Articles.Tests.ServicesTests;
+namespace Articles.Tests.ServicesTests.Unit;
 
 [TestClass]
-public class ArticlesServiceTests : ServicesTestsBase
+public class ArticlesServiceTests
 {
     private static IArticlesRepository _articlesRepository = null!;
     private static ITagsRepository _tagsRepository = null!;
@@ -125,16 +124,15 @@ public class ArticlesServiceTests : ServicesTestsBase
 
         var given = new UpdateArticleRequest()
         {
-            Id = 42,
             Title = "updatedTitle",
             Tags = ["aaa", ExistingTagName, "ccc"]
         };
 
-        await target.Update(given);
+        await target.Update(42, given);
 
         A.CallTo(() => _articlesRepository.Update(A<Article>.That.Matches(article =>
                     article.Title == given.Title &&
-                    article.Id == given.Id &&
+                    article.Id == 42 &&
                     article.Tags[0].Name == given.Tags[0] &&
                     article.Tags[1].Name == given.Tags[1] &&
                     article.Tags[2].Name == given.Tags[2] &&

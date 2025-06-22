@@ -6,5 +6,5 @@ public interface IArticlesService
 {
     public Task<ArticleDto?> GetById(long id);
     public Task<ArticleDto> Create(CreateArticleRequest article);
-    public Task<bool> Update(UpdateArticleRequest article);
+    public Task<bool> Update(long id, UpdateArticleRequest article);
 }

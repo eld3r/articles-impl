@@ -28,7 +28,7 @@ public class ArticlesController(IArticlesService articleService) : ControllerBas
     [HttpPut("{id:long}")]
     public async Task<IActionResult> Update(long id, [FromBody] UpdateArticleRequest request)
     {
-        var success = await articleService.Update(request);
+        var success = await articleService.Update(id, request);
         if (!success)
             return NotFound();
 
