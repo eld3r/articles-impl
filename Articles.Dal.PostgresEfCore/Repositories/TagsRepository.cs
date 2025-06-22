@@ -37,6 +37,7 @@ public class TagsRepository(ArticlesDbContext dbContext) : ITagsRepository
         var existingTags = await dbContext.Tags.Where(w => articleTags
                 .Select(s => s.Name)
                 .Contains(w.Name))
+            .AsNoTracking()
             .ToDictionaryAsync(k => k.Name);
 
         return existingTags.Adapt<Dictionary<string, Tag>>();

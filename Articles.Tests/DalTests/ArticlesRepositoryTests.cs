@@ -34,7 +34,7 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
         {
             Title = "Статья 1",
             Tags = new List<string>() { "биология", "физика", "наука" }
-                .Select(str => new TagRepository { Name = str })
+                .Select(str => new Tag { Name = str })
                 .ToList()
         };
         
@@ -45,14 +45,14 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 
         await WithNewScopedDbContext(async db =>
         {
-            var dbArticle = await db.Articles.FirstOrDefaultAsync(x => x.Id == article.Id);
+            var dbArticle = await db.Articles
+                .Include(q => q.Tags)
+                .FirstOrDefaultAsync(x => x.Id == article.Id);
 
             dbArticle.ShouldNotBeNull().PrintToConsole();
             dbArticle.Title.ShouldBe(article.Title);
-            dbArticle.Tags.ShouldBeEmpty();
+            dbArticle.Tags.ShouldNotBeEmpty();
             dbArticle.DateCreated.Date.ShouldBe(DateTime.Today);
-            
-            (await db.Tags.ToListAsync()).ShouldBeEmpty();
         });
     }
 
@@ -72,7 +72,7 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
         {
             Title = "Статья 1",
             Tags = new List<string>() { "биология", "физика", "наука" }
-                .Select(str => new TagRepository { Name = str })
+                .Select(str => new Tag { Name = str })
                 .ToList()
         };
         

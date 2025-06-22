@@ -1,22 +1,49 @@
 ﻿using Articles.Dal;
 using Articles.Domain.Entities;
+using Articles.Services.DTO;
+using Mapster;
 
 namespace Articles.Services.Impl;
 
-public class ArticlesService(IArticlesRepository articlesRepository) : IArticlesService
+public class ArticlesService(IArticlesRepository articlesRepository, ITagsRepository tagsRepository) : IArticlesService
 {
-    public Article GetById(long id)
+    public async Task<ArticleDto?> GetById(long id)
     {
-        throw new NotImplementedException();
+        return (await articlesRepository.GetById(id)).Adapt<ArticleDto>();
     }
 
-    public long Save(Article article)
+    private async Task EnrichExistingTags(Article article)
     {
-        throw new NotImplementedException();
+        //обработать ситуацию с имеющимися тэгами
+        //TODO учесть порядок тэгов
+        var existingTags = await tagsRepository.GetExistingTags(article.Tags);
+        
+        foreach (var articleTag in article.Tags)
+        {
+            if (!existingTags.TryGetValue(articleTag.Name, out var existingTag))
+                continue;
+            
+            articleTag.Id = existingTag.Id;
+        };
     }
 
-    public void Update(Article article)
+    public async Task<ArticleDto> Create(CreateArticleRequest createArticleRequest)
     {
-        throw new NotImplementedException();
+        var article = createArticleRequest.Adapt<Article>();
+        
+        await EnrichExistingTags(article);
+        
+        await articlesRepository.Add(article);
+        return article.Adapt<ArticleDto>();
+    }
+
+    public async Task<bool> Update(UpdateArticleRequest updateArticleRequest)
+    {
+        var article = updateArticleRequest.Adapt<Article>();
+        
+        await EnrichExistingTags(article);
+        
+        await articlesRepository.Update(article);
+        return true;
     }
 }
