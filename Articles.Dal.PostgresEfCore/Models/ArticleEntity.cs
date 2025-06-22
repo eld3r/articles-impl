@@ -6,6 +6,6 @@ public class ArticleEntity
     public string Title { get; set; } = null!;
     public DateTime DateCreated { get; set; }
     public DateTime? DateModified { get; set; }
-    public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();
+    public ICollection<ArticleTagEntity> TagLinks { get; set; } = new List<ArticleTagEntity>();
     public SectionEntity? Section { get; set; } = null!;
 }

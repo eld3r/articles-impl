@@ -1,4 +1,4 @@
-﻿using Articles.Dal.PostgresEfCore.Equality;
+﻿using Articles.Dal.Exceptions;
 using Articles.Dal.PostgresEfCore.Models;
 using Articles.Domain.Entities;
 using Mapster;
@@ -9,7 +9,12 @@ namespace Articles.Dal.PostgresEfCore.Repositories;
 public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesRepository
 {
     public async Task<Article?> GetById(long id) =>
-        (await dbContext.Articles.Include(q => q.Tags).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id))
+        (await dbContext.Articles
+            .Include(q => q.TagLinks)
+            .ThenInclude(q => q.Tag)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id)
+        )
         .Adapt<Article>();
 
     public async Task Add(Article article)
@@ -17,11 +22,6 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
         ArgumentNullException.ThrowIfNull(article);
 
         var articleEntity = article.Adapt<ArticleEntity>();
-
-        foreach (var tag in articleEntity.Tags.Where(t=>t.Id != 0))
-        {
-            dbContext.Attach(tag);
-        }
 
         await dbContext.AddAsync(articleEntity);
         await dbContext.SaveChangesAsync();
@@ -32,23 +32,14 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
     public async Task Update(Article article)
     {
         var articleEntity = await dbContext.Articles
-            .Include(q => q.Tags)
+            .Include(q => q.TagLinks)
+            .ThenInclude(q => q.Tag)
             .FirstOrDefaultAsync(x => x.Id == article.Id);
-        
+
         if (articleEntity is null)
-            //TODO придумать эксепшон
-            throw new Exception("Article not found");
+            throw new ItemNotFoundException("Article not found");
 
-        var finalTags = articleEntity.Tags
-            .Where(articleEntityTag => article.Tags.Any(t => t.Name == articleEntityTag.Name))
-            .Union(
-                from articleTag in article.Tags
-                where articleEntity.Tags.All(t => t.Name != articleTag.Name)
-                select articleTag.Adapt<TagEntity>()
-                ).ToList();
-
-        articleEntity.Title = article.Title;
-        articleEntity.Tags = finalTags;
+        article.Adapt(articleEntity);
         
         await dbContext.SaveChangesAsync();
         article.DateModified = articleEntity.DateModified;

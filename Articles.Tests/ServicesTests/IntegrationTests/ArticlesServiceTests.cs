@@ -36,6 +36,37 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
     }
 
     [TestMethod]
+    public async Task GetArticleTest()
+    {
+        var tags = Enumerable.Range(1, 5)
+            .Select(s => new TagEntity() { Name = $"tag{s}" }).ToList();
+
+        var article = new ArticleEntity()
+        {
+            Title = "art1", TagLinks = tags
+                .Select(t => new ArticleTagEntity() { Tag = t })
+                .ToList()
+        };
+        
+        await WithNewScope<ArticlesDbContext>(async db =>
+        {
+            await db.Tags.AddRangeAsync(tags);
+            await db.Articles.AddAsync(article);
+            await db.SaveChangesAsync();
+        });
+
+        await WithNewScopedRepo(async repo =>
+        {
+            var articleDto = await repo.GetById(article.Id);
+
+            articleDto.ShouldNotBeNull().PrintToConsole();
+            articleDto.Title.ShouldBe(article.Title);
+            articleDto.Tags.ShouldDeepEqual(tags.Select(t => t.Name).ToList());
+        });
+
+    }
+    
+    [TestMethod]
     [DataRow(0)]
     [DataRow(1)]
     [DataRow(2)]
@@ -46,37 +77,45 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
         {
             await WithNewScope<ArticlesDbContext>(async db =>
             {
-                await db.Tags.AddRangeAsync(Enumerable.Range(1, existingTagsCount).Select(s => new TagEntity() { Name = $"tag{s}" }));
+                await db.Tags.AddRangeAsync(Enumerable.Range(1, existingTagsCount)
+                    .Select(s => new TagEntity() { Name = $"tag{s}" }));
                 await db.SaveChangesAsync();
             });
         }
 
+        var requestForCreate = new CreateArticleRequest() { Title = "my article 1", Tags = ["TAG1", "TAG2", "TAG3"] };
+
         await WithNewScopedRepo(async target =>
         {
-            var createDto = new CreateArticleRequest() { Title = "my article 1", Tags = ["tag1", "tag2", "tag3"] };
-
-            var created = await target.Create(createDto);
+            var createdDto = await target.Create(requestForCreate);
 
             var db = ServiceProvider.GetRequiredService<ArticlesDbContext>();
-            var article = await db.Articles
-                .Include(q => q.Tags)
-                .FirstOrDefaultAsync(f => f.Id == created.Id);
+            var dbArticle = await db.Articles
+                .Include(q => q.TagLinks)
+                .ThenInclude(q => q.Tag)
+                .FirstOrDefaultAsync(f => f.Id == createdDto.Id);
 
-            article.ShouldNotBeNull().PrintToConsole();
-            article.Id.ShouldBeGreaterThan(0);
-            article.Id.ShouldBe(created.Id);
-            article.Title.ShouldBe(createDto.Title);
-            article.Tags.ShouldNotBeEmpty();
-            article.DateCreated.Date.ShouldBe(DateTime.Today);
+            dbArticle.ShouldNotBeNull();
+            dbArticle.Id.ShouldBeGreaterThan(0);
+            dbArticle.Id.ShouldBe(createdDto.Id);
+            dbArticle.Title.ShouldBe(requestForCreate.Title);
+            dbArticle.TagLinks
+                .OrderBy(o => o.Order)
+                .Select(s => s.Tag?.Name)
+                .ShouldDeepEqual(requestForCreate.Tags.Select(s => s.ToLower()));
+            dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
+            
+            createdDto.PrintToConsole().Tags.ShouldDeepEqual(requestForCreate.Tags.Select(s => s.ToLower()));
 
-            db.Remove(article);
+            db.Remove(dbArticle);
             await db.SaveChangesAsync();
         });
     }
 
+    [TestMethod]
     public async Task AddRepeatedArticleTest()
     {
-        var createDto = new CreateArticleRequest() { Title = "my article 1", Tags = ["tag1", "tag2", "tag3"] };
+        var createDto = new CreateArticleRequest() { Title = "my article 1", Tags = ["TAG1", "TAG2", "TAG3"] };
 
         await WithNewScopedRepo(async target =>
         {
@@ -89,7 +128,8 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
 
             var db = ServiceProvider.GetRequiredService<ArticlesDbContext>();
             var article = await db.Articles
-                .Include(q => q.Tags)
+                .Include(q => q.TagLinks)
+                .ThenInclude(q => q.Tag)
                 .FirstOrDefaultAsync(f => f.Id == created.Id);
 
             (await db.Articles.ToListAsync()).PrintToConsole().Count.ShouldBe(2);
@@ -97,22 +137,26 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
             article.Id.ShouldBeGreaterThan(0);
             article.Id.ShouldBe(created.Id);
             article.Title.ShouldBe(createDto.Title);
-            article.Tags.ShouldNotBeEmpty();
-            article.DateCreated.Date.ShouldBe(DateTime.Today);
+            article.TagLinks
+                .OrderBy(o => o.Order)
+                .Select(s => s.Tag?.Name)
+                .ShouldDeepEqual(createDto.Tags.Select(s => s.ToLower()));
+            article.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
         });
     }
 
     [TestMethod]
-    [DataRow("Update nothing", "my article 1", "tag1;tag2;tag3")]
-    [DataRow("Update title only", "ARTICLE 2", "tag1;tag2;tag3")]
-    [DataRow("Full update tags", "asdasd", "tag4;tag5;tag6")]
-    [DataRow("Update some tags", "ddddaaa", "tag1;tag2;tag5")]
-    [DataRow("Update tags order", "ddddaaa", "tag3;tag1;tag2")]
-    [DataRow("Update nothing", "my article 1", "tag1;tag2;tag3", true)]
-    [DataRow("Update title only", "ARTICLE 2", "tag1;tag2;tag3", true)]
-    [DataRow("Full update tags", "asdasd", "tag4;tag5;tag6", true)]
-    [DataRow("Update some tags", "ddddaaa", "tag1;tag2;tag5", true)]
-    [DataRow("Update tags order", "ddddaaa", "tag3;tag1;tag2", true)]
+    [DataRow("1. Update nothing", "my article 1", "Tag1;Tag2;Tag3")]
+    [DataRow("2. Update title only", "ARTICLE 2", "Tag1;Tag2;Tag3")]
+    [DataRow("3. Full update tags", "asdasd", "Tag4;Tag5;Tag6")]
+    [DataRow("4. Update some tags", "ddddaaa", "Tag1;Tag2;Tag5")]
+    [DataRow("5. Update tags order", "ddddaaa", "Tag3;Tag1;Tag2")]
+    [DataRow("6. Update with repeated tags", "rep", "tag;tAg;TAG")]
+    [DataRow("1. Update nothing", "my article 1", "Tag1;Tag2;Tag3", true)]
+    [DataRow("2. Update title only", "ARTICLE 2", "Tag1;Tag2;Tag3", true)]
+    [DataRow("3. Full update tags", "asdasd", "Tag4;Tag5;Tag6", true)]
+    [DataRow("4. Update some tags", "ddddaaa", "Tag1;Tag2;Tag5", true)]
+    [DataRow("5. Update tags order", "ddddaaa", "Tag3;Tag1;Tag2", true)]
     public async Task UpdateArticleTest(string caseName, string title, string tags, bool insertPreExisingTags = false)
     {
         if (insertPreExisingTags)
@@ -138,23 +182,26 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
         await WithNewScopedRepo(async target =>
         {
             var updateDto = new UpdateArticleRequest()
-                { Id = createdArticle.Id, Title = title, Tags = tags.Split(';').ToList() };
+                { Title = title, Tags = tags.Split(';').ToList() };
 
-            await target.Update(updateDto);
+            await target.Update(createdArticle.Id, updateDto);
 
             var db = ServiceProvider.GetRequiredService<ArticlesDbContext>();
             var article = await db.Articles
-                .Include(q => q.Tags)
-                .FirstOrDefaultAsync(f => f.Id == updateDto.Id);
+                .Include(q => q.TagLinks)
+                .ThenInclude(q => q.Tag)
+                .FirstOrDefaultAsync(f => f.Id == createdArticle.Id);
 
             article.ShouldNotBeNull().PrintToConsole();
             article.Id.ShouldBeGreaterThan(0);
-            article.Id.ShouldBe(updateDto.Id);
+            article.Id.ShouldBe(createdArticle.Id);
             article.Title.ShouldBe(updateDto.Title);
-            article.Tags.ShouldNotBeEmpty();
-            article.Tags.Select(t => t.Name).ShouldDeepEqual(updateDto.Tags);
-            article.DateCreated.Date.ShouldBe(DateTime.Today);
-            if (createdArticle.Title != updateDto.Title || !createdArticle.Tags.IsDeepEqual(updateDto.Tags))
+            article.TagLinks.ShouldNotBeNull().ShouldNotBeEmpty();
+            article.TagLinks
+                .Select(t => t.Tag?.Name)
+                .ShouldDeepEqual(updateDto.Tags.Select(s => s.ToLower()).Distinct());
+            article.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
+            if (createdArticle.Title != updateDto.Title || !createdArticle.Tags.IsDeepEqual(updateDto.Tags.Select(s => s.ToLower())))
                 article.DateModified.ShouldNotBeNull();
         });
     }
