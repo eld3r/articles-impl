@@ -7,7 +7,8 @@ public class ArticleConfig : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {
-        config.ForType<Article, ArticleEntity>()
-            .Ignore(x => x.Tags);
+        config.ForType<Tag, TagEntity>()
+            .Map(s => s.Name, d => d.Name.ToLower())
+            ;
     }
 }

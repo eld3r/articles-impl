@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Articles.Dal.PostgresEfCore.Repositories;
 
-public class TagsRepository(ArticlesDbContext dbContext) : ITagRepository
+public class TagsRepository(ArticlesDbContext dbContext) : ITagsRepository
 {
     public async Task AddTags(List<Tag> tags)
     {
@@ -30,5 +30,15 @@ public class TagsRepository(ArticlesDbContext dbContext) : ITagRepository
     public async Task<Tag?> GetTagById(long id)
     {
         return (await dbContext.Tags.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id)).Adapt<Tag>();
+    }
+
+    public async Task<Dictionary<string, Tag>> GetExistingTags(List<Tag> articleTags)
+    {
+        var existingTags = await dbContext.Tags.Where(w => articleTags
+                .Select(s => s.Name)
+                .Contains(w.Name))
+            .ToDictionaryAsync(k => k.Name);
+
+        return existingTags.Adapt<Dictionary<string, Tag>>();
     }
 }

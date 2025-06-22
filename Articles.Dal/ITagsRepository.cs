@@ -2,8 +2,9 @@
 
 namespace Articles.Dal;
 
-public interface ITagRepository
+public interface ITagsRepository
 {
     Task AddTags(List<Tag> tags);
     Task<Tag?> GetTagById(long id);
+    Task<Dictionary<string, Tag>> GetExistingTags(List<Tag> articleTags);
 }

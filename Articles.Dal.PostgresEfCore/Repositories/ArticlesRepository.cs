@@ -7,8 +7,9 @@ namespace Articles.Dal.PostgresEfCore.Repositories;
 
 public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesRepository
 {
-    public async Task<Article?> GetById(long id) => 
-        (await dbContext.Articles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id)).Adapt<Article>();
+    public async Task<Article?> GetById(long id) =>
+        (await dbContext.Articles.Include(q => q.Tags).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id))
+        .Adapt<Article>();
 
     public async Task Add(Article article)
     {
