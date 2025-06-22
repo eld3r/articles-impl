@@ -28,6 +28,23 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
     }
 
     [TestMethod]
+    public async Task AddArticleWithTooLooongTagTest()
+    {
+        var article = new Article()
+        {
+            Title = "Статья 1",
+            Tags = new List<string>() { "биология", "физика", new string(Enumerable.Range(0,257).Select(x =>'a').ToArray()) }
+                .Select(str => new Tag { Name = str })
+                .ToList()
+        };
+        
+        await WithNewScopedRepo(async repo =>
+        {
+            await Should.ThrowAsync<DbUpdateException>(repo.Add(article));
+        });
+    }
+
+    [TestMethod]
     public async Task AddArticleTest()
     {
         var article = new Article()
@@ -46,13 +63,13 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
         await WithNewScopedDbContext(async db =>
         {
             var dbArticle = await db.Articles
-                .Include(q => q.Tags)
+                .Include(q => q.TagLinks)
                 .FirstOrDefaultAsync(x => x.Id == article.Id);
 
             dbArticle.ShouldNotBeNull().PrintToConsole();
             dbArticle.Title.ShouldBe(article.Title);
-            dbArticle.Tags.ShouldNotBeEmpty();
-            dbArticle.DateCreated.Date.ShouldBe(DateTime.Today);
+            dbArticle.TagLinks.ShouldNotBeEmpty();
+            dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
         });
     }
 
@@ -93,9 +110,9 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 
             dbArticle.ShouldNotBeNull().PrintToConsole();
             dbArticle.Title.ShouldBe(title);
-            dbArticle.Tags.ShouldBeEmpty();
-            dbArticle.DateCreated.Date.ShouldBe(DateTime.Today);
-            dbArticle.DateModified.ShouldNotBeNull().Date.ShouldBe(DateTime.Today);
+            dbArticle.TagLinks.ShouldBeEmpty();
+            dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
+            dbArticle.DateModified.ShouldNotBeNull().Date.ShouldBe(DateTime.UtcNow.Date);
             
             dbArticle.DateCreated.ShouldBeLessThan(dbArticle.DateModified.Value);
             
@@ -120,7 +137,8 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             var article = new ArticleEntity()
             {
                 Title = "title",
-                Tags = new[] { "tag", "tag1", "tag2" }.Select(s => new TagEntity { Name = s }).ToList()
+                TagLinks = new[] { "tag", "tag1", "tag2" }
+                    .Select(s => new ArticleTagEntity { Tag = new TagEntity() { Name = s } }).ToList()
             };
             await db.AddAsync(article);
             await db.SaveChangesAsync();
