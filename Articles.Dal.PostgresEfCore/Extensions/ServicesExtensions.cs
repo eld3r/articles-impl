@@ -3,6 +3,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Articles.Dal.PostgresEfCore.Extensions;
 
@@ -15,6 +16,10 @@ public static class ServicesExtensions
                     .UseNpgsql(configuration.GetConnectionString("postgres"))
                     .UseSnakeCaseNamingConvention()
                     .AddInterceptors(new CreateUpdateDateInterceptor())
+#if DEBUG
+                    .LogTo(Console.WriteLine, LogLevel.Information)
+                    .EnableSensitiveDataLogging()
+#endif
                 )
             .AddScoped<IArticlesRepository, ArticlesRepository>()
             .AddScoped<ISectionsRepository, SectionsRepository>()

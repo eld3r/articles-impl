@@ -7,4 +7,5 @@ public class ArticleEntity
     public DateTime DateCreated { get; set; }
     public DateTime? DateModified { get; set; }
     public ICollection<TagEntity> Tags { get; set; } = new List<TagEntity>();
+    public SectionEntity? Section { get; set; } = null!;
 }

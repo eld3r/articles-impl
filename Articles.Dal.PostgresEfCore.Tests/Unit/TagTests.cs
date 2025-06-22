@@ -1,4 +1,5 @@
 using Articles.Dal.PostgresEfCore.Models;
+using Articles.Dal.PostgresEfCore.Tests.Unit.Base;
 using Articles.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

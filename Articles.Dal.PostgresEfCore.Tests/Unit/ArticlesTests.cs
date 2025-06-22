@@ -1,4 +1,5 @@
-﻿using Articles.Domain.Entities;
+﻿using Articles.Dal.PostgresEfCore.Tests.Unit.Base;
+using Articles.Domain.Entities;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

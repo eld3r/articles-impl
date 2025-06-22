@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Articles.Dal.PostgresEfCore.Tests.Unit;
+namespace Articles.Dal.PostgresEfCore.Tests.Unit.Base;
 
 [TestClass]
 public class DbInitiateTestProfileBase
