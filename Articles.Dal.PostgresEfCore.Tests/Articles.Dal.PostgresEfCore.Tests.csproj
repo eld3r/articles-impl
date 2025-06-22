@@ -32,6 +32,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Articles.Dal.PostgresEfCore\Articles.Dal.PostgresEfCore.csproj" />
+      <ProjectReference Include="..\Articles.Services.Impl\Articles.Services.Impl.csproj" />
     </ItemGroup>
 
     <ItemGroup>

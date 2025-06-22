@@ -17,7 +17,7 @@ public class TagTests : DbInitiateTestProfileBase
         await dbContext.SaveChangesAsync();
     }
     
-    private static async Task TagRepoInNewScope(Func<ITagRepository, Task> action)
+    private static async Task TagRepoInNewScope(Func<ITagsRepository, Task> action)
     {
         await WithNewScope(action);
     }
@@ -52,7 +52,7 @@ public class TagTests : DbInitiateTestProfileBase
         await dbContext.SaveChangesAsync();
         
         using var anotherScope = ServiceProvider.CreateScope();
-        var target = anotherScope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = anotherScope.ServiceProvider.GetRequiredService<ITagsRepository>();
         var result = await target.GetTagById(given.Id);
         
         result.ShouldNotBeNull();
@@ -65,7 +65,7 @@ public class TagTests : DbInitiateTestProfileBase
     public async Task NullArgTest()
     {
         using var scope = ServiceProvider.CreateScope();
-        var target = scope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
         await Should.ThrowAsync<ArgumentNullException>(()=> target.AddTags(null!));
     }
@@ -74,7 +74,7 @@ public class TagTests : DbInitiateTestProfileBase
     public async Task TooLooongTagTest()
     {
         using var scope = ServiceProvider.CreateScope();
-        var target = scope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
         var tooLongTag = new Tag()
         {
@@ -93,7 +93,7 @@ public class TagTests : DbInitiateTestProfileBase
     public async Task TooLooongTagTestNotInsertsAll()
     {
         using var scope = ServiceProvider.CreateScope();
-        var target = scope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
         var tooLongTag = new Tag()
         {
@@ -118,7 +118,7 @@ public class TagTests : DbInitiateTestProfileBase
     public async Task GetNotExistingTagTest()
     {
         using var scope = ServiceProvider.CreateScope();
-        var target = scope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
         var result = await target.GetTagById(-1);
         
@@ -129,7 +129,7 @@ public class TagTests : DbInitiateTestProfileBase
     public async Task CaseIgnoreCoupledTest()
     {
         using var scope = ServiceProvider.CreateScope();
-        var target = scope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
         await target.AddTags([new Tag() { Name = "test" }, new Tag() { Name = "TEST" }]);
         
@@ -142,12 +142,12 @@ public class TagTests : DbInitiateTestProfileBase
     public async Task CaseIgnoreSeparateTest()
     {
         using var scope = ServiceProvider.CreateScope();
-        var target = scope.ServiceProvider.GetRequiredService<ITagRepository>();
+        var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
         var tag = new Tag() { Name = "test" };
         await target.AddTags([tag]);
 
-        await WithNewScope<ITagRepository>(async repository =>
+        await WithNewScope<ITagsRepository>(async repository =>
         {
             var anotherTag = new Tag() { Name = "TEST" };
             await repository.AddTags([anotherTag]);

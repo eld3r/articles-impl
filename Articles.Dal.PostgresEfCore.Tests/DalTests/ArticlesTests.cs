@@ -1,10 +1,11 @@
-﻿using Articles.Dal.PostgresEfCore.Tests.Unit.Base;
+﻿using Articles.Dal.PostgresEfCore.Models;
+using Articles.Dal.PostgresEfCore.Tests.Unit.Base;
 using Articles.Domain.Entities;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Articles.Dal.PostgresEfCore.Tests.Unit;
+namespace Articles.Dal.PostgresEfCore.Tests.DalTests;
 
 [TestClass]
 public class ArticlesTests : DbInitiateTestProfileBase
@@ -107,6 +108,33 @@ public class ArticlesTests : DbInitiateTestProfileBase
             result.ShouldBeNull();
         });
     
+    [TestMethod]
+    public async Task GetArticleTest()
+    {
+        var articleId = 0L;
+        await WithNewScopedDbContext(async db =>
+        {
+            var article = new ArticleEntity()
+            {
+                Title = "title",
+                Tags = new[] { "tag", "tag1", "tag2" }.Select(s => new TagEntity { Name = s }).ToList()
+            };
+            await db.AddAsync(article);
+            await db.SaveChangesAsync();
+            articleId = article.Id;
+        });
+        
+        articleId.ShouldNotBe(0);
+        
+        await WithNewScopedRepo(async repo =>
+        {
+            var result = await repo.GetById(articleId);
+            result.ShouldNotBeNull();
+            result.Title.ShouldBe("title");
+            result.Tags.ShouldNotBeEmpty();
+        });
+    }
+
     [TestMethod]
     public async Task AddWithTooLongName() =>
         await WithNewScopedRepo(async repo =>

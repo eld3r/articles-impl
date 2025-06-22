@@ -1,5 +1,4 @@
-﻿using Articles.Dal.PostgresEfCore.Extensions;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Articles.Dal.PostgresEfCore.Tests.Unit.Base;
@@ -8,9 +7,9 @@ namespace Articles.Dal.PostgresEfCore.Tests.Unit.Base;
 public class DbInitiateTestProfileBase
 {
     protected static IServiceProvider ServiceProvider = null!;
-
-    [AssemblyInitialize]
-    public static void Init(TestContext context)
+    
+    [ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
+    public static async Task Initialize(TestContext context)
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -19,13 +18,9 @@ public class DbInitiateTestProfileBase
         
         var services = new ServiceCollection();
         services.AddArticlesPgServices(configuration);
-
+        
         ServiceProvider = services.BuildServiceProvider();
-    }
-    
-    [ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
-    public static async Task Initialize(TestContext context)
-    {
+        
         using var scope = ServiceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ArticlesDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
