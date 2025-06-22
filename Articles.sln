@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articles.Services.Impl.Tests", "Articles.Services.Impl.Tests\Articles.Services.Impl.Tests.csproj", "{3EA20529-7D80-40E6-9527-6501134DE40D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articles.Dal.PostgresEfCore", "Articles.Dal.PostgresEfCore\Articles.Dal.PostgresEfCore.csproj", "{A2A60F08-DA18-4AAE-A505-DE432D5B5304}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Articles.Dal.PostgresEfCore.Tests", "Articles.Dal.PostgresEfCore.Tests\Articles.Dal.PostgresEfCore.Tests.csproj", "{A5B01D02-C23C-4A2D-8BDF-E13C949AEE9A}"
@@ -47,10 +45,6 @@ Global
 		{2DC2C781-12CB-44C1-8AE3-2C7AD36DD266}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DC2C781-12CB-44C1-8AE3-2C7AD36DD266}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DC2C781-12CB-44C1-8AE3-2C7AD36DD266}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3EA20529-7D80-40E6-9527-6501134DE40D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3EA20529-7D80-40E6-9527-6501134DE40D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EA20529-7D80-40E6-9527-6501134DE40D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3EA20529-7D80-40E6-9527-6501134DE40D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A2A60F08-DA18-4AAE-A505-DE432D5B5304}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A2A60F08-DA18-4AAE-A505-DE432D5B5304}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2A60F08-DA18-4AAE-A505-DE432D5B5304}.Release|Any CPU.ActiveCfg = Release|Any CPU
