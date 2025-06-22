@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Articles.Tests.DalTests;
 
 [TestClass]
-public class ArticlesTests : DbInitiateTestProfileBase
+public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 {
     [TestInitialize]
     public async Task TestInit()
@@ -34,7 +34,7 @@ public class ArticlesTests : DbInitiateTestProfileBase
         {
             Title = "Статья 1",
             Tags = new List<string>() { "биология", "физика", "наука" }
-                .Select(str => new Tag { Name = str })
+                .Select(str => new TagRepository { Name = str })
                 .ToList()
         };
         
@@ -72,7 +72,7 @@ public class ArticlesTests : DbInitiateTestProfileBase
         {
             Title = "Статья 1",
             Tags = new List<string>() { "биология", "физика", "наука" }
-                .Select(str => new Tag { Name = str })
+                .Select(str => new TagRepository { Name = str })
                 .ToList()
         };
         

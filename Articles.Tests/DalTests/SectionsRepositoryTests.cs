@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Articles.Tests.DalTests;
 
 [TestClass]
-public class SectionsTests : DbInitiateTestProfileBase
+public class SectionsRepositoryTests : DbInitiateTestProfileBase
 {
     [TestInitialize]
     public async Task TestInit()

@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Articles.Tests.DalTests;
 
 [TestClass]
-public class TagTests : DbInitiateTestProfileBase
+public class TagRepositoryTests : DbInitiateTestProfileBase
 {
     [TestInitialize]
     public async Task TestInit()
@@ -28,7 +28,7 @@ public class TagTests : DbInitiateTestProfileBase
     [TestMethod]
     public async Task AddTagTest()
     {
-        var given = new List<Tag>() { new() { Name = "test" }, new() { Name = "test2" } };
+        var given = new List<TagRepository>() { new() { Name = "test" }, new() { Name = "test2" } };
         await TagRepoInNewScope(async target =>
         {
             await target.AddTags(given);
@@ -79,7 +79,7 @@ public class TagTests : DbInitiateTestProfileBase
         using var scope = ServiceProvider.CreateScope();
         var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
-        var tooLongTag = new Tag()
+        var tooLongTag = new TagRepository()
         {
             Name = new string(Enumerable
                 .Range(1, 257)
@@ -98,7 +98,7 @@ public class TagTests : DbInitiateTestProfileBase
         using var scope = ServiceProvider.CreateScope();
         var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
-        var tooLongTag = new Tag()
+        var tooLongTag = new TagRepository()
         {
             Name = new string(Enumerable
                 .Range(1, 257)
@@ -108,7 +108,7 @@ public class TagTests : DbInitiateTestProfileBase
 
         tooLongTag.Name.Length.PrintToConsole("Length of tag");
 
-        await Should.ThrowAsync<DbUpdateException>(()=> target.AddTags([tooLongTag, new Tag(){Name = "test"}]));
+        await Should.ThrowAsync<DbUpdateException>(()=> target.AddTags([tooLongTag, new TagRepository(){Name = "test"}]));
 
         await WithNewScopedDbContext(async db =>
         {
@@ -134,7 +134,7 @@ public class TagTests : DbInitiateTestProfileBase
         using var scope = ServiceProvider.CreateScope();
         var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
-        await target.AddTags([new Tag() { Name = "test" }, new Tag() { Name = "TEST" }]);
+        await target.AddTags([new TagRepository() { Name = "test" }, new TagRepository() { Name = "TEST" }]);
         
         using var anotherScope = ServiceProvider.CreateScope();
         var allTags = await anotherScope.ServiceProvider.GetRequiredService<ArticlesDbContext>().Tags.ToListAsync();
@@ -147,12 +147,12 @@ public class TagTests : DbInitiateTestProfileBase
         using var scope = ServiceProvider.CreateScope();
         var target = scope.ServiceProvider.GetRequiredService<ITagsRepository>();
 
-        var tag = new Tag() { Name = "test" };
+        var tag = new TagRepository() { Name = "test" };
         await target.AddTags([tag]);
 
         await WithNewScope<ITagsRepository>(async repository =>
         {
-            var anotherTag = new Tag() { Name = "TEST" };
+            var anotherTag = new TagRepository() { Name = "TEST" };
             await repository.AddTags([anotherTag]);
         });
 
