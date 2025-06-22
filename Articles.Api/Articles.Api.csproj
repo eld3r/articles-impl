@@ -20,10 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions\" />
-    </ItemGroup>
-
-    <ItemGroup>
+      <ProjectReference Include="..\Articles.Dal.PostgresEfCore\Articles.Dal.PostgresEfCore.csproj" />
+      <ProjectReference Include="..\Articles.Services.Impl\Articles.Services.Impl.csproj" />
       <ProjectReference Include="..\Articles.Services\Articles.Services.csproj" />
     </ItemGroup>
 

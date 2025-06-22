@@ -18,7 +18,7 @@ public class ArticlesController(IArticlesService articleService) : ControllerBas
         return Ok(article);
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<ActionResult<ArticleDto>> Create([FromBody] CreateArticleRequest request)
     {
         var article = await articleService.Create(request);
