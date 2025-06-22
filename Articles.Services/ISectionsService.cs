@@ -1,9 +1,9 @@
-﻿using Articles.Domain.Entities;
+﻿using Articles.Services.DTO;
 
 namespace Articles.Services;
 
 public interface ISectionsService
 {
-    List<Section> GetSections();
-    List<Article> GetArticlesBySection(long sectionId);
+    Task<List<SectionDto>> GetAllSections();
+    Task<SectionDetailedDto?> GetDetailedSection(long sectionId);
 }

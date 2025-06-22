@@ -1,10 +1,10 @@
-﻿using Articles.Domain.Entities;
+﻿using Articles.Services.DTO;
 
 namespace Articles.Services;
 
 public interface IArticlesService
 {
-    public Article GetById(long id);
-    public long Save(Article article);
-    public void Update(Article article);
+    public Task<ArticleDto?> GetById(long id);
+    public Task<ArticleDto> Create(CreateArticleRequest article);
+    public Task<bool> Update(UpdateArticleRequest article);
 }
