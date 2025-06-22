@@ -1,8 +1,7 @@
-﻿using Articles.Dal.PostgresEfCore.Mapping;
-using Articles.Services.Impl.Mapping;
-using Mapster;
+﻿using Mapster;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Articles.Tests.Extensions;
 
 public static class ServicesExteinsions
 {

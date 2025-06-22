@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Articles.Tests.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Articles.Dal.PostgresEfCore.Tests.ServicesTests;
+namespace Articles.Tests.ServicesTests.Base;
 
 [TestClass]
 public class ServicesTestsBase

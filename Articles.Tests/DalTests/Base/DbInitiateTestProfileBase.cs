@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Articles.Dal.PostgresEfCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Articles.Dal.PostgresEfCore.Tests.Unit.Base;
+namespace Articles.Tests.DalTests.Base;
 
 [TestClass]
 public class DbInitiateTestProfileBase

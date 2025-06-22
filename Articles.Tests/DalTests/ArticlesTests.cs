@@ -1,11 +1,14 @@
-﻿using Articles.Dal.PostgresEfCore.Models;
-using Articles.Dal.PostgresEfCore.Tests.Unit.Base;
+﻿using Articles.Dal;
+using Articles.Dal.PostgresEfCore;
+using Articles.Dal.PostgresEfCore.Models;
 using Articles.Domain.Entities;
+using Articles.Tests.DalTests.Base;
+using Articles.Tests.Extensions;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Articles.Dal.PostgresEfCore.Tests.DalTests;
+namespace Articles.Tests.DalTests;
 
 [TestClass]
 public class ArticlesTests : DbInitiateTestProfileBase

@@ -1,8 +1,9 @@
 ﻿using Articles.Domain.Entities;
+using Articles.Tests.Extensions;
+using Articles.Tests.ServicesTests.Base;
 using Mapster;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Articles.Dal.PostgresEfCore.Tests.ServicesTests;
+namespace Articles.Tests.ServicesTests;
 
 [TestClass]
 public class MappingTests : ServicesTestsBase

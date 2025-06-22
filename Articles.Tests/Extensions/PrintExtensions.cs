@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace System;
+namespace Articles.Tests.Extensions;
 
 public static class PrintExtensions
 {

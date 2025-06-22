@@ -1,5 +1,8 @@
 ﻿
+using Articles.Tests.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace Articles.Tests;
 
 public static class TestAssemblyInitializer
 {
