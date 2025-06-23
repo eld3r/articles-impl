@@ -1,16 +1,14 @@
-﻿using Articles.Domain.Entities;
+﻿using Articles.Dal;
+using Articles.Services.DTO;
+using Mapster;
 
 namespace Articles.Services.Impl;
 
-public class SectionsService : ISectionsService
+public class SectionsService(ISectionsRepository sectionsRepository): ISectionsService
 {
-    public List<Section> GetSections()
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<List<SectionDto>> GetAllSections() =>
+        (await sectionsRepository.GetAllSections()).Adapt<List<SectionDto>>();
 
-    public List<Article> GetArticlesBySection(long sectionId)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<SectionDetailedDto?> GetDetailedSection(long sectionId) =>
+        (await sectionsRepository.GetSectionById(sectionId)).Adapt<SectionDetailedDto>();
 }
