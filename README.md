@@ -48,3 +48,11 @@
 - Фреймворк ASP.NET Core 8
 - СУБД MS SQL Server или PostgreSQL
 - Работа приложения в docker-контейнерах
+
+### Миграции
+
+При изменении конфигурации модели необходимо добавить миграцию следующей командой
+
+```shell
+dotnet ef migrations add Name --project Articles.Dal.PostgresEfCore --startup-project Articles.Api -- --Enviroment localhost
+```
