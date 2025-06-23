@@ -1,5 +1,4 @@
 ﻿using Articles.Dal.PostgresEfCore;
-using Articles.Tests.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

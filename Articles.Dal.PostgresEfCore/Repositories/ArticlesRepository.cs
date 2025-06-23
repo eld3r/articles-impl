@@ -47,6 +47,7 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
 
         article.Adapt(articleEntity);
         articleEntity.DateModified = DateTime.UtcNow;
+        
         await dbContext.SaveChangesAsync();
         article.DateModified = articleEntity.DateModified;
     }

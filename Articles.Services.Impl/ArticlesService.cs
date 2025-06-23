@@ -6,7 +6,7 @@ using Mapster;
 
 namespace Articles.Services.Impl;
 
-public class ArticlesService(IArticlesRepository articlesRepository) : IArticlesService
+public class ArticlesService(IArticlesRepository articlesRepository, ISectionResolveService sectionResolveService) : IArticlesService
 {
     public async Task<ArticleDto?> GetById(long id)
     {
@@ -23,8 +23,10 @@ public class ArticlesService(IArticlesRepository articlesRepository) : IArticles
         var article = createArticleRequest.Adapt<Article>();
         
         DistinctTags(article);
+        article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
         
         await articlesRepository.Add(article);
+        
         return article.Adapt<ArticleDto>();
     }
 
@@ -34,6 +36,7 @@ public class ArticlesService(IArticlesRepository articlesRepository) : IArticles
         article.Id = id;
         
         DistinctTags(article);
+        article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
         
         try
         {

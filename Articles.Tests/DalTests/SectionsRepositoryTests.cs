@@ -45,19 +45,19 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
             new()
             {
                 Title = "Article 1",
-                Tags = tags,
+                TagLinks = tags.Select(tag => new ArticleTagEntity() { Tag = tag }).ToList(),
                 Section = sections[0],
             },
             new()
             {
                 Title = "Article 2",
-                Tags = tags1,
+                TagLinks = tags1.Select(tag => new ArticleTagEntity() { Tag = tag }).ToList(),
                 Section = sections[1],
             },
             new()
             {
                 Title = "Article 3",
-                Tags = tags1,
+                TagLinks = tags1.Select(tag => new ArticleTagEntity() { Tag = tag }).ToList(),
                 Section = sections[1],
             }
         };
@@ -123,7 +123,7 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
             result[0].Name.ShouldBe("section 2");
         });
     }
-    
+
     [TestMethod]
     public async Task AddSectionTest()
     {
@@ -131,7 +131,7 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
         {
             Name = "section to remove",
         };
-        
+
         await WithNewScopedRepo(async repo =>
         {
             var result = await repo.AddSection(section);
@@ -156,7 +156,7 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
             await Should.ThrowAsync<InvalidOperationException>(() => repo.RemoveSection(-1));
         });
     }
-    
+
     [TestMethod]
     public async Task RemoveSectionWithArticlesTest()
     {
@@ -168,19 +168,13 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
         });
 
         sectionId.ShouldBeGreaterThan(0);
-        
+
         await WithNewScopedRepo(async repo =>
         {
-            await repo.RemoveSection(sectionId);
-        });
-        
-        await WithNewScopedDbContext(async dbContext =>
-        {
-            (await dbContext.Sections.FirstOrDefaultAsync())
-                .ShouldBeNull();
+            await Should.ThrowAsync<DbUpdateException>(() => repo.RemoveSection(sectionId));
         });
     }
-    
+
     [TestMethod]
     public async Task RemoveSectionWithoutArticlesTest()
     {
@@ -188,20 +182,17 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
         {
             Name = "section to remove",
         };
-        
+
         await WithNewScopedDbContext(async db =>
         {
             var sectionEntity = await db.Sections.AddAsync(section.Adapt<SectionEntity>());
             await db.SaveChangesAsync();
             section.Id = sectionEntity.Entity.Id;
         });
-        
+
         section.Id.ShouldBeGreaterThan(0);
-        
-        await WithNewScopedRepo(async repo =>
-        {
-            await repo.RemoveSection(section.Id);
-        });
+
+        await WithNewScopedRepo(async repo => { await repo.RemoveSection(section.Id); });
 
         await WithNewScopedDbContext(async db =>
         {
@@ -209,4 +200,6 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
             sectionEntity.ShouldBeNull();
         });
     }
+    
+    //todo тесты GetSectionForTags...
 }

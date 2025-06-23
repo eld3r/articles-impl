@@ -1,5 +1,6 @@
 ﻿using Articles.Dal;
 using Articles.Domain.Entities;
+using Articles.Services;
 using Articles.Services.DTO;
 using Articles.Services.Impl;
 using Articles.Tests.Extensions;
@@ -13,6 +14,7 @@ namespace Articles.Tests.ServicesTests.Unit;
 public class ArticlesServiceTests
 {
     private static IArticlesRepository _articlesRepository = null!;
+    private static ISectionResolveService _sectionResolveService = null!;
 
     private static readonly Article FakeArticle = new()
     {
@@ -33,6 +35,7 @@ public class ArticlesServiceTests
     public static void Init(TestContext context)
     {
         _articlesRepository = A.Fake<IArticlesRepository>();
+        _sectionResolveService = A.Fake<ISectionResolveService>();
 
         A.CallTo(() => _articlesRepository.GetById(A<long>._))
             .ReturnsLazily((long id) =>
@@ -71,12 +74,23 @@ public class ArticlesServiceTests
 
                 return Task.FromResult(newArticle);
             });
+
+        A.CallTo(() => _sectionResolveService.ResolveSectionForArticleTags(A<List<Tag>>._))
+            .ReturnsLazily((List<Tag> tags) =>
+            {
+                var newSection = new Section()
+                {
+                    Id = 1,
+                    Name = "newSection"
+                };
+                return Task.FromResult(newSection);
+            });
     }
 
     [TestMethod]
     public async Task GetArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository);
+        var target = new ArticlesService(_articlesRepository, _sectionResolveService);
 
         var article = await target.GetById(42);
 
@@ -90,7 +104,7 @@ public class ArticlesServiceTests
     [TestMethod]
     public async Task CreateArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository);
+        var target = new ArticlesService(_articlesRepository, _sectionResolveService);
 
         var given = new CreateArticleRequest()
         {
@@ -113,7 +127,7 @@ public class ArticlesServiceTests
     [TestMethod]
     public async Task UpdateArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository);
+        var target = new ArticlesService(_articlesRepository, _sectionResolveService);
 
         var given = new UpdateArticleRequest()
         {

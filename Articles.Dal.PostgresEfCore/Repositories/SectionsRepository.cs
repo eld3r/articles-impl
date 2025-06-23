@@ -13,7 +13,7 @@ public class SectionsRepository(ArticlesDbContext dbContext) : ISectionsReposito
             .Sections
             .OrderByDescending(s => s.Articles.Count)
             .ToListAsync();
-        
+
         return result.Adapt<List<Section>>();
     }
 
@@ -23,7 +23,7 @@ public class SectionsRepository(ArticlesDbContext dbContext) : ISectionsReposito
             .Sections
             .Include(s => s.Articles)
             .FirstOrDefaultAsync(s => s.Id == sectionId);
-        
+
         return result.Adapt<Section>();
     }
 
@@ -44,5 +44,16 @@ public class SectionsRepository(ArticlesDbContext dbContext) : ISectionsReposito
 
         dbContext.Remove(entity);
         await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<Section?> FindSectionByTags(List<Tag> tags)
+    {
+        var result = await (from section in dbContext.Sections.Include(q => q.Tags)
+            where
+                !section.Tags.Select(s => s.Name).Except(tags.Select(s => s.Name)).Any()
+                && !tags.Select(s => s.Name).Except(section.Tags.Select(s => s.Name)).Any()
+            select section).AsNoTracking().FirstOrDefaultAsync();
+        
+        return result.Adapt<Section>();
     }
 }

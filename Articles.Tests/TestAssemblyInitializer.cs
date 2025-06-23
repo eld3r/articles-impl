@@ -1,7 +1,6 @@
 ﻿
 using Articles.Dal.PostgresEfCore.Mapping;
 using Articles.Services.Impl.Mapping;
-using Articles.Tests.Extensions;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 

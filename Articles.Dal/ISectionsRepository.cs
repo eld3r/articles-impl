@@ -9,4 +9,5 @@ public interface ISectionsRepository
     Task<long> AddSection(Section section);
     //todo нужно ли вообще удаление
     Task RemoveSection(long id);
+    Task<Section?> FindSectionByTags(List<Tag> tags);
 }

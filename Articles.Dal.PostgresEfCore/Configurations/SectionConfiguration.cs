@@ -10,5 +10,6 @@ public class SectionConfiguration: IEntityTypeConfiguration<SectionEntity>
     {
         builder.HasKey(s => s.Id);
         builder.Property(s => s.Name).IsRequired().HasMaxLength(1024);
+        builder.HasIndex(s => s.Name).IsUnique();
     }
 }

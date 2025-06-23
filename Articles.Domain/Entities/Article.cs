@@ -10,4 +10,5 @@ public class Article
     public DateTime DateCreated { get; set; }
     public DateTime? DateModified { get; set; }
     public List<Tag> Tags { get; set; } = [];
+    public Section Section { get; set; } = null!;
 }
