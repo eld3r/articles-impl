@@ -3,8 +3,10 @@
 namespace Articles.Tests.DalTests;
 
 [TestClass]
+[TestCategory("Other")]
 public class CleanupDb : DbInitiateTestProfileBase
 {
+    [Ignore("Используется для дебага")]
     [TestMethod]
     public async Task CleanupDd()
     {

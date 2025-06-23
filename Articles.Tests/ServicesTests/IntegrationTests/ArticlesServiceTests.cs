@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Articles.Tests.ServicesTests.IntegrationTests;
 
 [TestClass]
+[TestCategory("Integration")]
 public class ArticlesServiceTests : IntegrationTestsBaseProfile
 {
     [ClassInitialize]

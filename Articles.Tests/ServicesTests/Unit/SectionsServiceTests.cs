@@ -1,13 +1,8 @@
 ﻿using Articles.Dal;
-using Articles.Dal.PostgresEfCore.Repositories;
 using Articles.Domain.Entities;
-using Articles.Services;
-using Articles.Services.DTO;
 using Articles.Services.Impl;
 using Articles.Tests.Extensions;
-using DeepEqual.Syntax;
 using FakeItEasy;
-using Mapster;
 
 namespace Articles.Tests.ServicesTests.Unit;
 

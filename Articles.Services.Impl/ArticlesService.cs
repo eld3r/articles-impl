@@ -1,5 +1,6 @@
 ﻿using Articles.Dal;
 using Articles.Dal.Exceptions;
+using Articles.Domain;
 using Articles.Domain.Entities;
 using Articles.Services.DTO;
 using Mapster;

@@ -51,8 +51,7 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : BaseRepository(db
         await _dbContext.SaveChangesAsync();
         article.DateModified = articleEntity.DateModified;
     }
-
-    //todo копипаст
+    
     private async Task<List<ArticleTagEntity>> EnrichExistingTags(List<Tag> tags, ArticleEntity articleEntity)
     {
         var existingTags = await LoadExistingTagsAsync(tags);

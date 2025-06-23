@@ -1,5 +1,4 @@
 ﻿using Articles.Dal;
-using Articles.Dal.PostgresEfCore.Repositories;
 using Articles.Domain.Entities;
 using Articles.Services;
 using Articles.Services.DTO;

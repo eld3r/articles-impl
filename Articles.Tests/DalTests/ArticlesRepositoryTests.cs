@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Articles.Tests.DalTests;
 
 [TestClass]
+[TestCategory("Dal-Integration")]
 public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 {
     [TestInitialize]

@@ -14,10 +14,11 @@ public class SectionResolverService(ISectionsRepository sectionsRepository) : IS
         if (section != null)
             return section;
 
+        var orderedTags = tags.OrderBy(s => s.Name).ToList();
         section = new Section()
         {
-            Name = string.Join(',', tags.OrderBy(s => s.Name).Select(s => s.Name)),
-            Tags = tags.OrderBy(s => s.Name).ToList()
+            Name = string.Join(',', orderedTags.Select(s => s.Name)),
+            Tags = orderedTags
         };
         
         return section;

@@ -1,6 +1,8 @@
-﻿using Articles.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
+using Articles.Domain.Entities;
 
-namespace Articles.Services.Impl;
+namespace Articles.Domain;
 
 public class TagEqualityComparer : IEqualityComparer<Tag>
 {
