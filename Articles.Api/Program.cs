@@ -1,3 +1,4 @@
+using Articles.Dal.PostgresEfCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,13 @@ builder.Services.AddArticlesPgServices(builder.Configuration);
 builder.Services.AddMapster();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ArticlesDbContext>();
+    await db.Database.EnsureDeletedAsync();
+    await db.Database.EnsureCreatedAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.EnvironmentName == "localhost")
