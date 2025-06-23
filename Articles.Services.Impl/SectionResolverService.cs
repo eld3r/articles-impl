@@ -5,20 +5,21 @@ namespace Articles.Services.Impl;
 
 public class SectionResolverService(ISectionsRepository sectionsRepository) : ISectionResolveService
 {
-    public async Task<Section> ResolveSectionForArticleTags(List<Tag> tags)
+    public async Task<Section> ResolveSectionForArticleTags(Article article)
     {
-        tags.ForEach(t => t.Name = t.Name.ToLower());
+        article.Tags.ForEach(t => t.Name = t.Name.ToLower());
         
-        var section = await sectionsRepository.FindSectionByTags(tags);
+        var section = await sectionsRepository.FindSectionByTags(article.Tags);
 
         if (section != null)
             return section;
 
-        var orderedTags = tags.OrderBy(s => s.Name).ToList();
+        var orderedTags = article.Tags.OrderBy(s => s.Name).ToList();
         section = new Section()
         {
             Name = string.Join(',', orderedTags.Select(s => s.Name)),
-            Tags = orderedTags
+            Tags = orderedTags,
+            Articles = new List<Article>() { article }
         };
         
         return section;

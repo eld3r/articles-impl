@@ -52,7 +52,8 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             Title = "Статья 1",
             Tags = new List<string>() { "биология", "физика", "наука" }
                 .Select(str => new Tag { Name = str })
-                .ToList()
+                .ToList(),
+            Section = new Section() { Name = "section 1" }
         };
 
         await WithNewScopedRepo(async repo => { await repo.Add(article); });
@@ -87,7 +88,8 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             Title = "Статья 1",
             Tags = new List<string>() { "биология", "физика", "наука" }
                 .Select(str => new Tag { Name = str })
-                .ToList()
+                .ToList(),
+            Section = new Section() { Name = "section 1" }
         };
 
         const string title = "Новое название для статьи";
@@ -110,7 +112,8 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 
             dbArticle.ShouldNotBeNull().PrintToConsole();
             dbArticle.Title.ShouldBe(title);
-            dbArticle.TagLinks.Select(s=>s.Tag.Name).ShouldDeepEqual(new List<string>{"биология", "физика", "наука"});
+            dbArticle.TagLinks.Select(s => s.Tag.Name)
+                .ShouldDeepEqual(new List<string> { "биология", "физика", "наука" });
             dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
             dbArticle.DateModified.ShouldNotBeNull().Date.ShouldBe(DateTime.UtcNow.Date);
 
@@ -136,7 +139,8 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             {
                 Title = "title",
                 TagLinks = new[] { "tag", "tag1", "tag2" }
-                    .Select(s => new ArticleTagEntity { Tag = new TagEntity() { Name = s } }).ToList()
+                    .Select(s => new ArticleTagEntity { Tag = new TagEntity() { Name = s } }).ToList(),
+                
             };
             await db.AddAsync(article);
             await db.SaveChangesAsync();

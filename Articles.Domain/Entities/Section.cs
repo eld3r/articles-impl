@@ -10,4 +10,6 @@ public class Section
     public int ArticlesCount { get; set; }
     
     public List<Tag> Tags { get; set; } = new();
+    
+    public List<Article> Articles { get; set; } = new();
 }

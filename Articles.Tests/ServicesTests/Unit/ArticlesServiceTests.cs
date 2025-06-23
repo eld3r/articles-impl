@@ -78,8 +78,8 @@ public class ArticlesServiceTests
                 return Task.FromResult(newArticle);
             });
 
-        A.CallTo(() => _sectionResolveService.ResolveSectionForArticleTags(A<List<Tag>>._))
-            .ReturnsLazily((List<Tag> tags) =>
+        A.CallTo(() => _sectionResolveService.ResolveSectionForArticleTags(A<Article>._))
+            .ReturnsLazily((Article article) =>
             {
                 var newSection = new Section()
                 {

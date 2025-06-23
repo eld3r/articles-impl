@@ -4,5 +4,5 @@ namespace Articles.Services;
 
 public interface ISectionResolveService
 {
-    Task<Section> ResolveSectionForArticleTags(List<Tag> tags);
+    Task<Section> ResolveSectionForArticleTags(Article tags);
 }

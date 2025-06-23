@@ -31,9 +31,9 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
         await db.SaveChangesAsync();
     }
 
-    private static async Task WithNewScopedRepo(Func<IArticlesService, Task> action)
+    private static async Task WithNewScopedArticlesService(Func<IArticlesService, Task> action)
     {
-        await WithNewScope(action);
+        await IntegrationTestsBaseProfile.WithNewScopedService(action);
     }
 
     [TestMethod]
@@ -49,14 +49,14 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
                 .ToList()
         };
         
-        await WithNewScope<ArticlesDbContext>(async db =>
+        await WithNewScopedService<ArticlesDbContext>(async db =>
         {
             await db.Tags.AddRangeAsync(tags);
             await db.Articles.AddAsync(article);
             await db.SaveChangesAsync();
         });
 
-        await WithNewScopedRepo(async repo =>
+        await WithNewScopedArticlesService(async repo =>
         {
             var articleDto = await repo.GetById(article.Id);
 
@@ -76,7 +76,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
     {
         if (existingTagsCount > 0)
         {
-            await WithNewScope<ArticlesDbContext>(async db =>
+            await WithNewScopedService<ArticlesDbContext>(async db =>
             {
                 await db.Tags.AddRangeAsync(Enumerable.Range(1, existingTagsCount)
                     .Select(s => new TagEntity() { Name = $"tag{s}" }));
@@ -86,7 +86,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
 
         var requestForCreate = new CreateArticleRequest() { Title = "my article 1", Tags = ["TAG1", "TAG2", "TAG3"] };
 
-        await WithNewScopedRepo(async target =>
+        await WithNewScopedArticlesService(async target =>
         {
             var createdDto = await target.Create(requestForCreate);
 
@@ -107,9 +107,6 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
             dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
             
             createdDto.PrintToConsole().Tags.ShouldDeepEqual(requestForCreate.Tags.Select(s => s.ToLower()));
-
-            db.Remove(dbArticle);
-            await db.SaveChangesAsync();
         });
     }
 
@@ -118,12 +115,12 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
     {
         var createDto = new CreateArticleRequest() { Title = "my article 1", Tags = ["TAG1", "TAG2", "TAG3"] };
 
-        await WithNewScopedRepo(async target =>
+        await WithNewScopedArticlesService(async target =>
         {
             var created = await target.Create(createDto);
         });
 
-        await WithNewScopedRepo(async target =>
+        await WithNewScopedArticlesService(async target =>
         {
             var created = await target.Create(createDto);
 
@@ -162,7 +159,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
     {
         if (insertPreExisingTags)
         {
-            await WithNewScope<ArticlesDbContext>(async db =>
+            await WithNewScopedService<ArticlesDbContext>(async db =>
             {
                 await db.Tags.AddRangeAsync(Enumerable.Range(1, 6).Select(s => new TagEntity() { Name = $"tag{s}" }));
                 await db.SaveChangesAsync();
@@ -170,7 +167,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
         }
 
         ArticleDto createdArticle = null!;
-        await WithNewScopedRepo(async target =>
+        await WithNewScopedArticlesService(async target =>
         {
             var createDto = new CreateArticleRequest() { Title = "my article 1", Tags = ["tag1", "tag2", "tag3"] };
 
@@ -180,7 +177,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
 
         createdArticle.ShouldNotBeNull();
 
-        await WithNewScopedRepo(async target =>
+        await WithNewScopedArticlesService(async target =>
         {
             var updateDto = new UpdateArticleRequest()
                 { Title = title, Tags = tags.Split(';').ToList() };
@@ -203,6 +200,70 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
                 .ShouldDeepEqual(updateDto.Tags.Select(s => s.ToLower()).Distinct());
             article.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
             article.DateModified.ShouldNotBeNull();
+        });
+    }
+
+    [TestMethod]
+    [DataRow("1. Update no tag for article", "Tag1;Tag2;Tag3", "Tag1;Tag2;Tag3", 1)]
+    [DataRow("1. Update tags for article", "Tag1;Tag2;Tag3", "Tag2;Tag3;Tag4", 2)]
+    [DataRow("1. Update nothing but tag case", "tag1;tag2;tag3", "Tag1;Tag2;Tag3", 1)]
+    public async Task UpdateArticleTagsTest(string caseName, string tagsBefore, string tagsAfter, int sectionsCountAfter)
+    {
+        //arrange
+        var articleEntity = new ArticleEntity()
+        {
+            Title = "my article 1",
+            TagLinks = tagsBefore.Split(';')
+                .Select((s, index) => new ArticleTagEntity() { Tag = new TagEntity() { Name = s.ToLower() } }).ToList(),
+            DateCreated = DateTime.UtcNow,
+        };
+
+        var sectionEntity = new SectionEntity()
+        {
+            Articles = new List<ArticleEntity>() { articleEntity },
+            Name = "section 1",
+            Tags = articleEntity.TagLinks.Select(s=>s.Tag).ToList()
+        };
+        
+        await WithNewScopedService<ArticlesDbContext>(async db =>
+        {
+            await db.Articles.AddAsync(articleEntity);
+            await db.Sections.AddAsync(sectionEntity);
+            await db.SaveChangesAsync();
+        });
+        
+        //act
+        await WithNewScopedArticlesService(async target =>
+        {
+            await target.Update(articleEntity.Id, new UpdateArticleRequest()
+            {
+                Title = articleEntity.Title,
+                Tags = tagsAfter.Split(';').ToList()
+            });
+        });
+        
+        //assert
+        
+        await WithNewScopedService<ArticlesDbContext>(async db =>
+        {
+            var allSections = await db
+                .Sections
+                .Include(q => q.Articles)
+                .Include(q=>q.Tags)
+                .ToListAsync();
+
+            allSections.Count.ShouldBe(sectionsCountAfter);
+            
+            var newSection = allSections
+                .FirstOrDefault(s => s.Articles.Any(a => a.Id == articleEntity.Id));
+            
+            newSection.ShouldNotBeNull().PrintToConsole();
+            newSection.Tags.Select(s => s.Name)
+                .ShouldDeepEqual(tagsAfter.Split(';').Select(s => s.ToLower()).Distinct());
+            
+            var oldSection = allSections.Except([newSection]).FirstOrDefault();
+
+            oldSection?.Articles.Count.ShouldBe(0);
         });
     }
 }

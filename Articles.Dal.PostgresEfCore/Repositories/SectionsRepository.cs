@@ -45,6 +45,12 @@ public class SectionsRepository(ArticlesDbContext dbContext) : BaseRepository(db
 
         entity.Tags = await MapWithEnrich(section.Tags);
 
+        entity.Articles = section.Articles.Select(s =>
+            s.Id == 0
+                ? s.Adapt<ArticleEntity>()
+                : _dbContext.Articles.FirstOrDefault(a => a.Id == s.Id) ?? s.Adapt<ArticleEntity>()).ToList();
+        ;
+
         await _dbContext.Sections.AddAsync(entity);
         await _dbContext.SaveChangesAsync();
         section.Id = entity.Id;
@@ -55,8 +61,10 @@ public class SectionsRepository(ArticlesDbContext dbContext) : BaseRepository(db
     {
         tags = tags.Distinct(new TagEqualityComparer()).ToList();
         tags.ForEach(t => t.Name = t.Name.ToLower());
-        
-        var result = await (from section in _dbContext.Sections.Include(q => q.Tags)
+
+        var result = await (from section in _dbContext.Sections
+                .Include(q => q.Tags)
+                .Include(q => q.Articles)
             where
                 section.Tags.Count == tags.Count &&
                 !section.Tags.Select(s => s.Name).Except(tags.Select(s => s.Name)).Any()

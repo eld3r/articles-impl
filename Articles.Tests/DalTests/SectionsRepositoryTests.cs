@@ -169,6 +169,7 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
         {
             Name = "section1",
             Tags = new List<string> { "tag1", "tag2", "tag3" }.Select(s => new Tag() { Name = s }).ToList(),
+            Articles = new List<Article>() { new() { Title = "123" } }
         };
 
         await WithNewScopedRepo(async repo =>
@@ -183,9 +184,11 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
         {
             var sectionEntity = await db.Sections
                 .Include(q => q.Tags)
+                .Include(q => q.Articles)
                 .FirstOrDefaultAsync(f => f.Id == section.Id);
             sectionEntity.ShouldNotBeNull().PrintToConsole();
             sectionEntity.Name.ShouldBe(section.Name);
+            sectionEntity.Articles.Count.ShouldBe(section.Articles.Count);
         });
     }
 
@@ -247,14 +250,14 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
                 .ToList();
 
             await db.Tags.AddRangeAsync(tagEntities);
-
+            
             targetSection = new SectionEntity()
             {
                 Name = "3-4-5",
                 Tags = tagEntities.Where(c =>
                         Enumerable.Range(3, 3)
                             .Any(a => c.Name.Contains(a.ToString())))
-                    .ToList()
+                    .ToList(),
             };
             await db.Sections.AddAsync(targetSection);
 

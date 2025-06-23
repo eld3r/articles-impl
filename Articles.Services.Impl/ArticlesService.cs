@@ -27,7 +27,7 @@ public class ArticlesService(
         var article = createArticleRequest.Adapt<Article>();
 
         DistinctTags(article);
-        article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
+        article.Section = await sectionResolveService.ResolveSectionForArticleTags(article);
         
         await articlesRepository.Add(article);
         await sectionsRepository.AddSection(article.Section);
@@ -41,11 +41,12 @@ public class ArticlesService(
         article.Id = id;
 
         DistinctTags(article);
-        article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
+        article.Section = await sectionResolveService.ResolveSectionForArticleTags(article);
         
         try
         {
             await articlesRepository.Update(article);
+            await sectionsRepository.AddSection(article.Section);
         }
         catch (ItemNotFoundException e)
         {

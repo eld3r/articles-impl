@@ -30,7 +30,7 @@ public class IntegrationTestsBaseProfile
         await dbContext.Database.EnsureCreatedAsync();
     }
     
-    protected static async Task WithNewScope<T>(Func<T, Task> action)
+    protected static async Task WithNewScopedService<T>(Func<T, Task> action)
     {
         using var scope = ServiceProvider.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<T>();
