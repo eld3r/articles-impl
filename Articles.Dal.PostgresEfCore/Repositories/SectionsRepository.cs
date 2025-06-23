@@ -13,7 +13,14 @@ public class SectionsRepository(ArticlesDbContext dbContext) : BaseRepository(db
     {
         var result = await _dbContext
             .Sections
+            .Include(q => q.Tags)
+            .AsNoTracking()
             .OrderByDescending(s => s.Articles.Count)
+            .Select(s => new
+            {
+                Section = s,
+                ArticlesCount = s.Articles.Count
+            })
             .ToListAsync();
 
         return result.Adapt<List<Section>>();
@@ -32,10 +39,18 @@ public class SectionsRepository(ArticlesDbContext dbContext) : BaseRepository(db
     public async Task<long> AddSection(Section section)
     {
         var entity = section.Adapt<SectionEntity>();
-        
-        entity.Tags = await MapWithEnrich(section.Tags);
 
-        await _dbContext.Sections.AddAsync(entity);
+        entity.Tags = await MapWithEnrich(section.Tags);
+        
+        if (section.Id == 0)
+        {
+            await _dbContext.Sections.AddAsync(entity);
+        }
+        else
+        {
+            return section.Id;
+        }
+        
         await _dbContext.SaveChangesAsync();
         section.Id = entity.Id;
         return entity.Id;

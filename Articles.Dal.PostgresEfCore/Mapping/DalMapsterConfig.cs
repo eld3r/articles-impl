@@ -15,6 +15,11 @@ public class DalMapsterConfig : IRegister
         config.ForType<Section, SectionEntity>()
             .Ignore(s => s.Tags)
             ;
+        
+        config.NewConfig<(SectionEntity Section, int ArticlesCount), Section>()
+            .Map(dest => dest, src => src.Section)
+            .Map(dest => dest.ArticlesCount, src => src.ArticlesCount)
+            ;
 
         config.ForType<Article, ArticleEntity>()
             .Ignore(a => a.TagLinks)

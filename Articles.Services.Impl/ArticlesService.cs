@@ -27,7 +27,6 @@ public class ArticlesService(
 
         DistinctTags(article);
         article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
-
         
         await articlesRepository.Add(article);
         await sectionsRepository.AddSection(article.Section);
