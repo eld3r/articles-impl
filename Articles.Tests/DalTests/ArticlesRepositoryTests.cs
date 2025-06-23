@@ -112,7 +112,7 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 
             dbArticle.ShouldNotBeNull().PrintToConsole();
             dbArticle.Title.ShouldBe(title);
-            dbArticle.TagLinks.Select(s => s.Tag.Name)
+            dbArticle.TagLinks.Select(s => s.Tag.ShouldNotBeNull().Name)
                 .ShouldDeepEqual(new List<string> { "биология", "физика", "наука" });
             dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
             dbArticle.DateModified.ShouldNotBeNull().Date.ShouldBe(DateTime.UtcNow.Date);

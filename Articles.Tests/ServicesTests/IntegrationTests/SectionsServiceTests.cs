@@ -81,7 +81,7 @@ public class SectionsServiceTests : IntegrationTestsBaseProfile
         {
             var section = await serice.GetDetailedSection(sections.First().Id);
 
-            section.PrintToConsole();
+            section.ShouldNotBeNull().PrintToConsole();
 
             section.Id.ShouldBeGreaterThan(0);
 

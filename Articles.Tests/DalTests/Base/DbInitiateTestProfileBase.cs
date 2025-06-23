@@ -8,7 +8,7 @@ namespace Articles.Tests.DalTests.Base;
 public class DbInitiateTestProfileBase
 {
     protected static IServiceProvider ServiceProvider = null!;
-    
+
     [ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
     public static async Task Initialize(TestContext context)
     {
@@ -16,25 +16,25 @@ public class DbInitiateTestProfileBase
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("testconfig.localhost.json")
             .Build();
-        
+
         var services = new ServiceCollection();
         services.AddArticlesPgServices(configuration);
-        
+
         ServiceProvider = services.BuildServiceProvider();
-        
+
         using var scope = ServiceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ArticlesDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await dbContext.Database.EnsureCreatedAsync();
     }
 
-    protected static async Task WithNewScope<T>(Func<T, Task> action)
+    protected static async Task WithNewScope<T>(Func<T, Task> action) where T : notnull
     {
         using var scope = ServiceProvider.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<T>();
         await action(service);
     }
-    
+
     protected static async Task WithNewScopedDbContext(Func<ArticlesDbContext, Task> action)
     {
         await WithNewScope(action);

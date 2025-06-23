@@ -222,7 +222,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
         {
             Articles = new List<ArticleEntity>() { articleEntity },
             Name = "section 1",
-            Tags = articleEntity.TagLinks.Select(s=>s.Tag).ToList()
+            Tags = articleEntity.TagLinks.Select(s=>s.Tag!).ToList()
         };
         
         await WithNewScopedService<ArticlesDbContext>(async db =>

@@ -24,16 +24,7 @@
         <PackageReference Include="MSTest.TestFramework" Version="3.0.4"/>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
         <PackageReference Include="Shouldly" Version="4.3.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
-        <HintPath>..\..\..\Users\bzdrsh\.dotnet\shared\Microsoft.AspNetCore.App\8.0.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-      </Reference>
-      <Reference Include="Microsoft.Extensions.Hosting">
-        <HintPath>..\..\..\Users\bzdrsh\.dotnet\shared\Microsoft.AspNetCore.App\8.0.0\Microsoft.Extensions.Hosting.dll</HintPath>
-      </Reference>
-    </ItemGroup>
+    </ItemGroup>  
 
     <ItemGroup>
       <ProjectReference Include="..\Articles.Dal.PostgresEfCore\Articles.Dal.PostgresEfCore.csproj" />
