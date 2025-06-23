@@ -1,11 +1,8 @@
 ﻿using Articles.Dal;
 using Articles.Dal.PostgresEfCore;
-using Articles.Dal.PostgresEfCore.Mapping;
 using Articles.Dal.PostgresEfCore.Repositories;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +23,5 @@ public static class ServicesExtensions
             )
             .AddScoped<IArticlesRepository, ArticlesRepository>()
             .AddScoped<ISectionsRepository, SectionsRepository>()
-            .AddScoped<ITagsRepository, TagsRepository>()
         ;
 }

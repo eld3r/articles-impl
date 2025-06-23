@@ -4,6 +4,7 @@ using Articles.Dal.PostgresEfCore.Models;
 using Articles.Domain.Entities;
 using Articles.Tests.DalTests.Base;
 using Articles.Tests.Extensions;
+using DeepEqual.Syntax;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,15 +34,13 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
         var article = new Article()
         {
             Title = "Статья 1",
-            Tags = new List<string>() { "биология", "физика", new string(Enumerable.Range(0,257).Select(x =>'a').ToArray()) }
+            Tags = new List<string>()
+                    { "биология", "физика", new string(Enumerable.Range(0, 257).Select(x => 'a').ToArray()) }
                 .Select(str => new Tag { Name = str })
                 .ToList()
         };
-        
-        await WithNewScopedRepo(async repo =>
-        {
-            await Should.ThrowAsync<DbUpdateException>(repo.Add(article));
-        });
+
+        await WithNewScopedRepo(async repo => { await Should.ThrowAsync<DbUpdateException>(repo.Add(article)); });
     }
 
     [TestMethod]
@@ -54,11 +53,8 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
                 .Select(str => new Tag { Name = str })
                 .ToList()
         };
-        
-        await WithNewScopedRepo(async repo =>
-        {
-            await repo.Add(article);
-        });
+
+        await WithNewScopedRepo(async repo => { await repo.Add(article); });
 
         await WithNewScopedDbContext(async db =>
         {
@@ -81,7 +77,7 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             await Should.ThrowAsync<ArgumentNullException>(() => repo.Add(null!));
         });
     }
-    
+
     [TestMethod]
     public async Task UpdateArticleTest()
     {
@@ -92,9 +88,9 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
                 .Select(str => new Tag { Name = str })
                 .ToList()
         };
-        
+
         const string title = "Новое название для статьи";
-        
+
         await WithNewScopedRepo(async repo =>
         {
             await repo.Add(article);
@@ -106,17 +102,18 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
 
         await WithNewScopedDbContext(async db =>
         {
-            var dbArticle = await db.Articles.FirstOrDefaultAsync(x => x.Id == article.Id);
+            var dbArticle = await db.Articles
+                .Include(q => q.TagLinks)
+                .ThenInclude(q => q.Tag)
+                .FirstOrDefaultAsync(x => x.Id == article.Id);
 
             dbArticle.ShouldNotBeNull().PrintToConsole();
             dbArticle.Title.ShouldBe(title);
-            dbArticle.TagLinks.ShouldBeEmpty();
+            dbArticle.TagLinks.Select(s=>s.Tag.Name).ShouldDeepEqual(new List<string>{"биология", "физика", "наука"});
             dbArticle.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
             dbArticle.DateModified.ShouldNotBeNull().Date.ShouldBe(DateTime.UtcNow.Date);
-            
+
             dbArticle.DateCreated.ShouldBeLessThan(dbArticle.DateModified.Value);
-            
-            (await db.Tags.ToListAsync()).ShouldBeEmpty();
         });
     }
 
@@ -127,7 +124,7 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             var result = await repo.GetById(-1);
             result.ShouldBeNull();
         });
-    
+
     [TestMethod]
     public async Task GetArticleTest()
     {
@@ -144,9 +141,9 @@ public class ArticlesRepositoryTests : DbInitiateTestProfileBase
             await db.SaveChangesAsync();
             articleId = article.Id;
         });
-        
+
         articleId.ShouldNotBe(0);
-        
+
         await WithNewScopedRepo(async repo =>
         {
             var result = await repo.GetById(articleId);

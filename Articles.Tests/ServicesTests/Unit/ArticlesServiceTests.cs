@@ -13,7 +13,6 @@ namespace Articles.Tests.ServicesTests.Unit;
 public class ArticlesServiceTests
 {
     private static IArticlesRepository _articlesRepository = null!;
-    private static ITagsRepository _tagsRepository = null!;
 
     private static readonly Article FakeArticle = new()
     {
@@ -34,7 +33,6 @@ public class ArticlesServiceTests
     public static void Init(TestContext context)
     {
         _articlesRepository = A.Fake<IArticlesRepository>();
-        _tagsRepository = A.Fake<ITagsRepository>();
 
         A.CallTo(() => _articlesRepository.GetById(A<long>._))
             .ReturnsLazily((long id) =>
@@ -73,16 +71,12 @@ public class ArticlesServiceTests
 
                 return Task.FromResult(newArticle);
             });
-
-        A.CallTo(() => _tagsRepository.GetExistingTags(A<List<Tag>>._))
-            .ReturnsLazily((List<Tag> tags) => new Dictionary<string, Tag>()
-                { { ExistingTagName, new Tag() { Id = ExistingTagId, Name = ExistingTagName } } });
     }
 
     [TestMethod]
     public async Task GetArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository, _tagsRepository);
+        var target = new ArticlesService(_articlesRepository);
 
         var article = await target.GetById(42);
 
@@ -96,12 +90,12 @@ public class ArticlesServiceTests
     [TestMethod]
     public async Task CreateArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository, _tagsRepository);
+        var target = new ArticlesService(_articlesRepository);
 
         var given = new CreateArticleRequest()
         {
             Title = "createdTitle",
-            Tags = ["aaa", ExistingTagName, "ccc"]
+            Tags = ["aaa", "bbb", "ccc"]
         };
 
         await target.Create(given);
@@ -110,8 +104,7 @@ public class ArticlesServiceTests
                     article.Title == given.Title &&
                     article.Tags[0].Name == given.Tags[0] &&
                     article.Tags[1].Name == given.Tags[1] &&
-                    article.Tags[2].Name == given.Tags[2] &&
-                    article.Tags[1].Id == ExistingTagId
+                    article.Tags[2].Name == given.Tags[2] 
                 )
             )
         ).MustHaveHappened();
@@ -120,12 +113,12 @@ public class ArticlesServiceTests
     [TestMethod]
     public async Task UpdateArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository, _tagsRepository);
+        var target = new ArticlesService(_articlesRepository);
 
         var given = new UpdateArticleRequest()
         {
             Title = "updatedTitle",
-            Tags = ["aaa", ExistingTagName, "ccc"]
+            Tags = ["aaa", "bbb", "ccc"]
         };
 
         await target.Update(42, given);
@@ -135,8 +128,7 @@ public class ArticlesServiceTests
                     article.Id == 42 &&
                     article.Tags[0].Name == given.Tags[0] &&
                     article.Tags[1].Name == given.Tags[1] &&
-                    article.Tags[2].Name == given.Tags[2] &&
-                    article.Tags[1].Id == ExistingTagId
+                    article.Tags[2].Name == given.Tags[2] 
                 )
             )
         ).MustHaveHappened();
