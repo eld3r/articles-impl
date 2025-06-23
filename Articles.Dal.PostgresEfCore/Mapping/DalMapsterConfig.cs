@@ -17,14 +17,7 @@ public class DalMapsterConfig : IRegister
             ;
 
         config.ForType<Article, ArticleEntity>()
-            .Map(d => d.TagLinks,
-                source => source.Tags.Select((tag, index) => new ArticleTagEntity()
-                {
-                    ArticleId = source.Id,
-                    TagId = tag.Id,
-                    Order = index,
-                    Tag = tag.Id > 0 ? null : tag.Adapt<TagEntity>()
-                }))
+            .Ignore(a => a.TagLinks)
             .Ignore(a => a.DateCreated)
             ;
 
