@@ -6,7 +6,10 @@ using Mapster;
 
 namespace Articles.Services.Impl;
 
-public class ArticlesService(IArticlesRepository articlesRepository, ISectionResolveService sectionResolveService) : IArticlesService
+public class ArticlesService(
+    IArticlesRepository articlesRepository,
+    ISectionResolveService sectionResolveService,
+    ISectionsRepository sectionsRepository) : IArticlesService
 {
     public async Task<ArticleDto?> GetById(long id)
     {
@@ -21,12 +24,14 @@ public class ArticlesService(IArticlesRepository articlesRepository, ISectionRes
     public async Task<ArticleDto> Create(CreateArticleRequest createArticleRequest)
     {
         var article = createArticleRequest.Adapt<Article>();
-        
+
         DistinctTags(article);
         article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
+
         
         await articlesRepository.Add(article);
-        
+        await sectionsRepository.AddSection(article.Section);
+
         return article.Adapt<ArticleDto>();
     }
 
@@ -34,7 +39,7 @@ public class ArticlesService(IArticlesRepository articlesRepository, ISectionRes
     {
         var article = updateArticleRequest.Adapt<Article>();
         article.Id = id;
-        
+
         DistinctTags(article);
         article.Section = await sectionResolveService.ResolveSectionForArticleTags(article.Tags);
         
@@ -47,7 +52,7 @@ public class ArticlesService(IArticlesRepository articlesRepository, ISectionRes
             Console.WriteLine(e);
             return false;
         }
-        
+
         return true;
     }
 }

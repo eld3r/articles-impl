@@ -11,6 +11,10 @@ public class DalMapsterConfig : IRegister
         config.ForType<Tag, TagEntity>()
             .Map(s => s.Name, d => d.Name.ToLower())
             ;
+        
+        config.ForType<Section, SectionEntity>()
+            .Ignore(s => s.Tags)
+            ;
 
         config.ForType<Article, ArticleEntity>()
             .Map(d => d.TagLinks,

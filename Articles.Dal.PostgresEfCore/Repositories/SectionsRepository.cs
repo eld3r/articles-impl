@@ -30,6 +30,9 @@ public class SectionsRepository(ArticlesDbContext dbContext) : ISectionsReposito
     public async Task<long> AddSection(Section section)
     {
         var entity = section.Adapt<SectionEntity>();
+
+        entity.Tags = await MapWithEnrich(section.Tags);
+
         await dbContext.Sections.AddAsync(entity);
         await dbContext.SaveChangesAsync();
         section.Id = entity.Id;
@@ -53,7 +56,17 @@ public class SectionsRepository(ArticlesDbContext dbContext) : ISectionsReposito
                 !section.Tags.Select(s => s.Name).Except(tags.Select(s => s.Name)).Any()
                 && !tags.Select(s => s.Name).Except(section.Tags.Select(s => s.Name)).Any()
             select section).AsNoTracking().FirstOrDefaultAsync();
-        
+
         return result.Adapt<Section>();
+    }
+
+    private async Task<List<TagEntity>> MapWithEnrich(List<Tag> tags)
+    {
+        var existingTags = await dbContext.Tags.Where(w => tags
+                .Select(s => s.Name)
+                .Contains(w.Name))
+            .ToDictionaryAsync(k => k.Name);
+
+        return tags.Select(tag => !existingTags.TryGetValue(tag.Name, out var existingTag) ? tag.Adapt<TagEntity>() : existingTag).ToList();
     }
 }

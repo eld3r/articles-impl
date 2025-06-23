@@ -21,7 +21,7 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
     {
         ArgumentNullException.ThrowIfNull(article);
 
-        await EnrichExistingTags(article);
+        await EnrichExistingTags(article.Tags);
         
         var articleEntity = article.Adapt<ArticleEntity>();
         articleEntity.DateCreated = DateTime.UtcNow;
@@ -35,7 +35,7 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
 
     public async Task Update(Article article)
     {
-        await EnrichExistingTags(article);
+        await EnrichExistingTags(article.Tags);
         
         var articleEntity = await dbContext.Articles
             .Include(q => q.TagLinks)
@@ -52,15 +52,16 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
         article.DateModified = articleEntity.DateModified;
     }
 
-    private async Task EnrichExistingTags(Article article)
+    //todo копипаст
+    private async Task EnrichExistingTags(List<Tag> tags)
     {
-        var existingTags = await dbContext.Tags.Where(w => article.Tags
+        var existingTags = await dbContext.Tags.Where(w => tags
                 .Select(s => s.Name)
                 .Contains(w.Name))
             .AsNoTracking()
             .ToDictionaryAsync(k => k.Name);
         
-        foreach (var articleTag in article.Tags)
+        foreach (var articleTag in tags)
         {
             if (!existingTags.TryGetValue(articleTag.Name, out var existingTag))
                 continue;
