@@ -15,7 +15,6 @@ public static class ServicesExtensions
                     options
                         .UseNpgsql(configuration.GetConnectionString("postgres"))
                         .UseSnakeCaseNamingConvention()
-                        .AddInterceptors(new CreateUpdateDateInterceptor())
 #if DEBUG
                         //.LogTo(Console.WriteLine, LogLevel.Information)
                         //.EnableSensitiveDataLogging()

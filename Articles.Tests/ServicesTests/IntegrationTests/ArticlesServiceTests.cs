@@ -201,8 +201,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
                 .Select(t => t.Tag?.Name)
                 .ShouldDeepEqual(updateDto.Tags.Select(s => s.ToLower()).Distinct());
             article.DateCreated.Date.ShouldBe(DateTime.UtcNow.Date);
-            if (createdArticle.Title != updateDto.Title || !createdArticle.Tags.IsDeepEqual(updateDto.Tags.Select(s => s.ToLower())))
-                article.DateModified.ShouldNotBeNull();
+            article.DateModified.ShouldNotBeNull();
         });
     }
 }

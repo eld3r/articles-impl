@@ -24,9 +24,11 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
         await EnrichExistingTags(article);
         
         var articleEntity = article.Adapt<ArticleEntity>();
-
+        articleEntity.DateCreated = DateTime.UtcNow;
+        
         await dbContext.AddAsync(articleEntity);
         await dbContext.SaveChangesAsync();
+        
         article.Id = articleEntity.Id;
         article.DateCreated = articleEntity.DateCreated;
     }
@@ -44,7 +46,7 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : IArticlesReposito
             throw new ItemNotFoundException("Article not found");
 
         article.Adapt(articleEntity);
-        
+        articleEntity.DateModified = DateTime.UtcNow;
         await dbContext.SaveChangesAsync();
         article.DateModified = articleEntity.DateModified;
     }
