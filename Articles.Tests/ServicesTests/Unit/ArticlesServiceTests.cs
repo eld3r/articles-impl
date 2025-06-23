@@ -37,7 +37,7 @@ public class ArticlesServiceTests
         _sectionResolveService = A.Fake<ISectionResolveService>();
         _sectionsRepository = A.Fake<ISectionsRepository>();
 
-        A.CallTo(() => _sectionsRepository.AddSection(A<Section>._))
+        A.CallTo(() => _sectionsRepository.AddOrUpdateSection(A<Section>._))
             .ReturnsLazily((Section section) => 1);
 
         A.CallTo(() => _articlesRepository.GetById(A<long>._))

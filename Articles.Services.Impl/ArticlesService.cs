@@ -30,7 +30,7 @@ public class ArticlesService(
         article.Section = await sectionResolveService.ResolveSectionForArticleTags(article);
         
         await articlesRepository.Add(article);
-        await sectionsRepository.AddSection(article.Section);
+        await sectionsRepository.AddOrUpdateSection(article.Section);
 
         return article.Adapt<ArticleDto>();
     }
@@ -46,7 +46,7 @@ public class ArticlesService(
         try
         {
             await articlesRepository.Update(article);
-            await sectionsRepository.AddSection(article.Section);
+            await sectionsRepository.AddOrUpdateSection(article.Section);
         }
         catch (ItemNotFoundException e)
         {

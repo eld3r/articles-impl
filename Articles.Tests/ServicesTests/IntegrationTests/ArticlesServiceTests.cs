@@ -266,4 +266,37 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
             oldSection?.Articles.Count.ShouldBe(0);
         });
     }
+
+    [TestMethod]
+    public async Task AddManyArticlesPerSectionTest()
+    {
+        var tags = "tag1;tag2;tag3".Split(';').ToList();
+        var createArticleRequest = new CreateArticleRequest()
+        {
+            Tags = tags
+        };
+
+        var articlesCount = 3;
+        
+        await WithNewScopedArticlesService(async target =>
+        {
+            for (var i = 0; i < articlesCount; i++)
+            {
+                createArticleRequest.Title = $"my article {i}";
+                await target.Create(createArticleRequest);
+            }
+        });
+
+        await WithNewScopedService<ISectionsService>(async service =>
+        {
+            var allSections = await service.GetAllSections();
+            var section = allSections.ShouldHaveSingleItem();
+            
+            var detailedSection = await service.GetDetailedSection(section.Id);
+            
+            detailedSection.ShouldNotBeNull().Articles.Count.ShouldBe(articlesCount);
+            detailedSection.Tags.Count.ShouldBe(tags.Count);
+            detailedSection.Tags.ShouldDeepEqual(tags);
+        });
+    }
 }

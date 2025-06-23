@@ -174,7 +174,7 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
 
         await WithNewScopedRepo(async repo =>
         {
-            var result = await repo.AddSection(section);
+            var result = await repo.AddOrUpdateSection(section);
             result.PrintToConsole();
             result.ShouldBeGreaterThan(0);
             result.ShouldBe(section.Id);
@@ -203,7 +203,7 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
 
         await WithNewScopedRepo(async repo =>
         {
-            var result = await repo.AddSection(section);
+            var result = await repo.AddOrUpdateSection(section);
             result.PrintToConsole();
             result.ShouldBeGreaterThan(0);
             result.ShouldBe(section.Id);
@@ -214,14 +214,14 @@ public class SectionsRepositoryTests : DbInitiateTestProfileBase
 
         await WithNewScopedRepo(async repo =>
         {
-            var result = await repo.AddSection(section);
+            var result = await repo.AddOrUpdateSection(section);
             result.ShouldBe(prevSectionId);
         });
 
         await WithNewScopedRepo(async repo =>
         {
             section.Id = 0;
-            await Should.ThrowAsync<DbUpdateException>(() => repo.AddSection(section));
+            await Should.ThrowAsync<DbUpdateException>(() => repo.AddOrUpdateSection(section));
         });
 
         await WithNewScopedDbContext(async db =>

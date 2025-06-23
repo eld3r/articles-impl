@@ -12,7 +12,10 @@ public class SectionResolverService(ISectionsRepository sectionsRepository) : IS
         var section = await sectionsRepository.FindSectionByTags(article.Tags);
 
         if (section != null)
+        {
+            section.Articles.Add(article);
             return section;
+        }
 
         var orderedTags = article.Tags.OrderBy(s => s.Name).ToList();
         section = new Section()

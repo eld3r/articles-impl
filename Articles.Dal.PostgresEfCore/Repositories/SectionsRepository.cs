@@ -1,4 +1,5 @@
-﻿using Articles.Dal.PostgresEfCore.Models;
+﻿using Articles.Dal.Exceptions;
+using Articles.Dal.PostgresEfCore.Models;
 using Articles.Domain;
 using Articles.Domain.Entities;
 using Mapster;
@@ -34,26 +35,42 @@ public class SectionsRepository(ArticlesDbContext dbContext) : BaseRepository(db
         return result.Adapt<Section>();
     }
 
-    public async Task<long> AddSection(Section section)
-    {
-        //Обновление раздела не предполагается, можно бонусом где-то выше провалидировать тэги и название, 
-        //но пока не видится возможность такой коллизии
-        if (section.Id > 0)
-            return section.Id;
+    private List<ArticleEntity> MapWithEnrichArticles(List<Article> articles) =>
+        articles.Select(s =>
+                s.Id == 0
+                    ? s.Adapt<ArticleEntity>()
+                    : _dbContext.Articles.FirstOrDefault(a => a.Id == s.Id) ??
+                      throw new ItemNotFoundException("Article that should be found was not found"))
+            .ToList();
 
+
+    public Task<long> AddOrUpdateSection(Section section) =>
+        section.Id == 0
+            ? AddSection(section)
+            : UpdateSection(section);
+
+    private async Task<long> AddSection(Section section)
+    {
         var entity = section.Adapt<SectionEntity>();
 
-        entity.Tags = await MapWithEnrich(section.Tags);
-
-        entity.Articles = section.Articles.Select(s =>
-            s.Id == 0
-                ? s.Adapt<ArticleEntity>()
-                : _dbContext.Articles.FirstOrDefault(a => a.Id == s.Id) ?? s.Adapt<ArticleEntity>()).ToList();
-        ;
+        entity.Tags = await MapWithEnrichTags(section.Tags);
+        entity.Articles = MapWithEnrichArticles(section.Articles);
 
         await _dbContext.Sections.AddAsync(entity);
+
         await _dbContext.SaveChangesAsync();
         section.Id = entity.Id;
+        return entity.Id;
+    }
+
+    private async Task<long> UpdateSection(Section section)
+    {
+        var entity = await _dbContext.Sections.FirstOrDefaultAsync(f => f.Id == section.Id);
+        if (entity == null)
+            throw new ItemNotFoundException("Section that should be found was not found");
+
+        entity.Articles = MapWithEnrichArticles(section.Articles);
+        await _dbContext.SaveChangesAsync();
         return entity.Id;
     }
 
@@ -74,7 +91,7 @@ public class SectionsRepository(ArticlesDbContext dbContext) : BaseRepository(db
         return result.Adapt<Section>();
     }
 
-    private async Task<List<TagEntity>> MapWithEnrich(List<Tag> tags)
+    private async Task<List<TagEntity>> MapWithEnrichTags(List<Tag> tags)
     {
         var existingTags = await LoadExistingTagsAsync(tags);
 

@@ -6,6 +6,6 @@ public interface ISectionsRepository
 {
     Task<List<Section>> GetAllSections();
     Task<Section> GetSectionById(long sectionId);
-    Task<long> AddSection(Section section);
+    Task<long> AddOrUpdateSection(Section section);
     Task<Section?> FindSectionByTags(List<Tag> tags);
 }
