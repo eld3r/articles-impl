@@ -1,7 +1,7 @@
 ﻿using Articles.Dal;
 using Articles.Domain.Entities;
 using Articles.Services;
-using Articles.Services.DTO;
+using Articles.Services.Contract;
 using Articles.Services.Impl;
 using Articles.Tests.Extensions;
 using DeepEqual.Syntax;

@@ -1,4 +1,6 @@
-﻿namespace Articles.Services.DTO;
+﻿using Articles.Services.Contract;
+
+namespace Articles.Services.DTO;
 
 public class SectionDto
 {

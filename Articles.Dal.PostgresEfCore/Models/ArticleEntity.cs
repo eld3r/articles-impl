@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Articles.Domain.Entities;
-
-namespace Articles.Dal.PostgresEfCore.Models;
+﻿namespace Articles.Dal.PostgresEfCore.Models;
 
 public class ArticleEntity
 {

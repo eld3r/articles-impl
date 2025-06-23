@@ -1,7 +1,7 @@
 ﻿using Articles.Dal.PostgresEfCore;
 using Articles.Dal.PostgresEfCore.Models;
 using Articles.Services;
-using Articles.Services.DTO;
+using Articles.Services.Contract;
 using Articles.Tests.Extensions;
 using DeepEqual.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -180,7 +180,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
         await WithNewScopedArticlesService(async target =>
         {
             var updateDto = new UpdateArticleRequest()
-                { Title = title, Tags = tags.Split(';').ToList() };
+                { Title = title, Tags = tags.Split(';') };
 
             await target.Update(createdArticle.Id, updateDto);
 
@@ -238,7 +238,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
             await target.Update(articleEntity.Id, new UpdateArticleRequest()
             {
                 Title = articleEntity.Title,
-                Tags = tagsAfter.Split(';').ToList()
+                Tags = tagsAfter.Split(';')
             });
         });
         
@@ -270,7 +270,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
     [TestMethod]
     public async Task AddManyArticlesPerSectionTest()
     {
-        var tags = "tag1;tag2;tag3".Split(';').ToList();
+        var tags = "tag1;tag2;tag3".Split(';');
         var createArticleRequest = new CreateArticleRequest()
         {
             Tags = tags
@@ -295,7 +295,7 @@ public class ArticlesServiceTests : IntegrationTestsBaseProfile
             var detailedSection = await service.GetDetailedSection(section.Id);
             
             detailedSection.ShouldNotBeNull().Articles.Count.ShouldBe(articlesCount);
-            detailedSection.Tags.Count.ShouldBe(tags.Count);
+            detailedSection.Tags.Count.ShouldBe(tags.Length);
             detailedSection.Tags.ShouldDeepEqual(tags);
         });
     }

@@ -1,5 +1,5 @@
 ﻿using Articles.Services;
-using Articles.Services.DTO;
+using Articles.Services.Contract;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Articles.Api.Controllers;

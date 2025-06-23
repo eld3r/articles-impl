@@ -1,4 +1,4 @@
-﻿using Articles.Services.DTO;
+﻿using Articles.Services.Contract;
 
 namespace Articles.Services;
 

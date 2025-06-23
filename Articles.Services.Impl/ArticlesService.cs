@@ -2,7 +2,7 @@
 using Articles.Dal.Exceptions;
 using Articles.Domain;
 using Articles.Domain.Entities;
-using Articles.Services.DTO;
+using Articles.Services.Contract;
 using Mapster;
 
 namespace Articles.Services.Impl;

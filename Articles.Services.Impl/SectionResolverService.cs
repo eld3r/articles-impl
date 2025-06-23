@@ -16,7 +16,7 @@ public class SectionResolverService(ISectionsRepository sectionsRepository) : IS
             section.Articles.Add(article);
             return section;
         }
-
+        
         var orderedTags = article.Tags.OrderBy(s => s.Name).ToList();
         section = new Section()
         {
