@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "d44a74df-7063-4417-b3f1-57e7ee6d7721",
+		"name": "Articles.Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "14626702"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "Articles",
+					"item": [
+						{
+							"name": "/api/Articles/create",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const response = pm.response.json();\r",
+											"const id = response.id;\r",
+											"\r",
+											"if (id) {\r",
+											"    pm.globals.set(\"createdArticleId\", id); // или заменить на pm.environment.set(...)\r",
+											"    console.log(\"createdArticleId set to:\", id);\r",
+											"} else {\r",
+											"    console.warn(\"ID not found in response.\");\r",
+											"}"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "text/plain"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"article 1\",\n  \"tags\": [ \n    \"tag0\",\n    \"tag2\",\n    \"tag1\", \n    \"tag5\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Articles/create",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Articles",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/api/Articles/:id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "text/plain"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/Articles/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Articles",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/api/Articles/:id",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"title\": \"tttt2t\",\n  \"tags\": [\n    \"tag2\",\n    \"tag1\", \"tag4\", \"new1tag\"\n  ]\n}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/Articles/{{createdArticleId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Articles",
+										"{{createdArticleId}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Sections",
+					"item": [
+						{
+							"name": "/api/Sections",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "text/plain"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/Sections",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Sections"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "/api/Sections/:id",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "text/plain"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/Sections/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"Sections",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5043"
+		}
+	]
+}
