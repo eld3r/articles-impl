@@ -7,6 +7,8 @@ using Articles.Tests.Extensions;
 using DeepEqual.Syntax;
 using FakeItEasy;
 using Mapster;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Articles.Tests.ServicesTests.Unit;
 
@@ -90,10 +92,17 @@ public class ArticlesServiceTests
             });
     }
 
+    private IArticlesService CreateService() =>
+        new ArticlesService(_articlesRepository,
+            _sectionResolveService,
+            _sectionsRepository,
+            NullLogger<ArticlesService>.Instance
+            );
+
     [TestMethod]
     public async Task GetArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository, _sectionResolveService, _sectionsRepository);
+        var target = CreateService();
 
         var article = await target.GetById(42);
 
@@ -107,7 +116,7 @@ public class ArticlesServiceTests
     [TestMethod]
     public async Task CreateArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository, _sectionResolveService, _sectionsRepository);
+        var target = CreateService();
 
         var given = new CreateArticleRequest()
         {
@@ -130,7 +139,7 @@ public class ArticlesServiceTests
     [TestMethod]
     public async Task UpdateArticleTest()
     {
-        var target = new ArticlesService(_articlesRepository, _sectionResolveService, _sectionsRepository);
+        var target = CreateService();
 
         var given = new UpdateArticleRequest()
         {

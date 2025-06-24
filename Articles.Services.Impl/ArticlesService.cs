@@ -4,13 +4,15 @@ using Articles.Domain;
 using Articles.Domain.Entities;
 using Articles.Services.Contract;
 using Mapster;
+using Microsoft.Extensions.Logging;
 
 namespace Articles.Services.Impl;
 
 public class ArticlesService(
     IArticlesRepository articlesRepository,
     ISectionResolveService sectionResolveService,
-    ISectionsRepository sectionsRepository) : IArticlesService
+    ISectionsRepository sectionsRepository,
+    ILogger<ArticlesService> logger) : IArticlesService
 {
     public async Task<ArticleDto?> GetById(long id)
     {
@@ -50,7 +52,7 @@ public class ArticlesService(
         }
         catch (ItemNotFoundException e)
         {
-            Console.WriteLine(e);
+            logger.LogError(e, "Article could not be updated");
             return false;
         }
 

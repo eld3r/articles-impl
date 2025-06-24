@@ -19,6 +19,7 @@ builder.Services.AddControllers();
 builder.Services.AddArticlesServices();
 builder.Services.AddArticlesPgServices(builder.Configuration);
 builder.Services.AddMapster();
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
