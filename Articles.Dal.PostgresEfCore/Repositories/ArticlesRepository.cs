@@ -26,7 +26,7 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : BaseRepository(db
         var articleEntity = article.Adapt<ArticleEntity>();
         articleEntity.DateCreated = DateTime.UtcNow;
 
-        articleEntity.TagLinks = await EnrichExistingTags(article.Tags, articleEntity);
+        articleEntity.TagLinks = await EnrichExistingTags(article.Tags);
         await _dbContext.AddAsync(articleEntity);
         await _dbContext.SaveChangesAsync();
         
@@ -45,38 +45,33 @@ public class ArticlesRepository(ArticlesDbContext dbContext) : BaseRepository(db
             throw new ItemNotFoundException("Article not found");
 
         article.Adapt(articleEntity);
-        articleEntity.TagLinks = await EnrichExistingTags(article.Tags, articleEntity);
+        articleEntity.TagLinks = await EnrichExistingTags(article.Tags);
         articleEntity.DateModified = DateTime.UtcNow;
         
         await _dbContext.SaveChangesAsync();
         article.DateModified = articleEntity.DateModified;
     }
     
-    private async Task<List<ArticleTagEntity>> EnrichExistingTags(List<Tag> tags, ArticleEntity articleEntity)
+    private async Task<List<ArticleTagEntity>> EnrichExistingTags(List<Tag> tags)
     {
         var existingTags = await LoadExistingTagsAsync(tags);
         
         var result = new List<ArticleTagEntity>();
         
-        int index = 0;
-        foreach (var articleTag in tags)
+        foreach (var (articleTag, index) in tags.Select((tag, i) => (tag, i)))
         {
-            var resultTagEntity = new ArticleTagEntity() { };
-            if (existingTags.TryGetValue(articleTag.Name, out var existingTag))
+            var tagEntity = existingTags.TryGetValue(articleTag.Name, out var existingTag)
+                ? existingTag
+                : articleTag.Adapt<TagEntity>();
+
+            result.Add(new ArticleTagEntity
             {
-                resultTagEntity.Tag = existingTag;
-                resultTagEntity.TagId = existingTag.Id;
-                resultTagEntity.Order = index;
-            }
-            else
-            {
-                resultTagEntity.Tag = articleTag.Adapt<TagEntity>();
-                resultTagEntity.Order = index;
-            }
-            
-            result.Add(resultTagEntity);
-            index++;
-        };
+                Tag = tagEntity,
+                TagId = tagEntity.Id,
+                Order = index
+            });
+        }
+        
         return result;
     }
 }
